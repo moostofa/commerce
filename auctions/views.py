@@ -81,12 +81,27 @@ def view_listing():
 @login_required
 def create_listing(request):
     if request.method == "GET":
+        #display form for creating a listing
         return render(request, "auctions/create.html", {
             "form": NewListing()
         })
     else:
+        #get form data
         form = NewListing(request.POST)
-        return HttpResponse(form)
+        if not form.is_valid():
+            return HttpResponse("error")
+        
+        #create a database entry using the form data, inserting it into the model (table)
+        model = Listing(
+            title = form.cleaned_data["title"],
+            price = form.cleaned_data["price"],
+            description = form.cleaned_data["description"],
+            category = form.cleaned_data["category"]
+        )
+
+        #save the entry and redirect user to index
+        model.save()
+        return HttpResponseRedirect(reverse("index"))
 
 
 #TODO: display user's watchlist (maybe I need a DB table or another DS to keep track of the watchlist?)
