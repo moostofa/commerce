@@ -4,8 +4,14 @@ from django.db import IntegrityError
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render
 from django.urls import reverse
+from django.forms import ModelForm
 
 from .models import User, Listing, Bid, Comment
+
+class NewItemForm(ModelForm):
+    class Meta:
+        model = Listing
+        fields = "__all__"
 
 #TODO: a django form for a new listing
 """
@@ -86,7 +92,10 @@ def view_listing():
 #TODO: allow user to create a listing. Make a Django form for this.
 @login_required
 def create_listing(request):
-    pass
+    if request.method == "GET":
+        return render(request, "auctions/create.html", {
+            "form": NewItemForm()
+        })
 
 
 #TODO: display user's watchlist (maybe I need a DB table or another DS to keep track of the watchlist?)
