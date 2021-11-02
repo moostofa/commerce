@@ -1,4 +1,5 @@
 from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth.decorators import login_required
 from django.db import IntegrityError
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render
@@ -6,7 +7,20 @@ from django.urls import reverse
 
 from .models import User
 
+#TODO: a django form for a new listing
+"""
+Form fields:
 
+1. CharField - Title
+2. TextArea - description
+3. IntegerField - starting bid
+4. (optional) URL - image
+5. CharField/SelectMenu(?) - category
+"""
+class NewListing():
+    pass
+
+#TODO: display listings
 def index(request):
     return render(request, "auctions/index.html")
 
@@ -61,3 +75,27 @@ def register(request):
         return HttpResponseRedirect(reverse("index"))
     else:
         return render(request, "auctions/register.html")
+
+
+#TODO: display all info about the listing
+@login_required
+def view_listing():
+    pass
+
+
+#TODO: allow user to create a listing. Make a Django form for this.
+@login_required
+def create_listing(request):
+    pass
+
+
+#TODO: display user's watchlist (maybe I need a DB table or another DS to keep track of the watchlist?)
+@login_required
+def watchlist():
+    pass
+
+
+#TODO: display listings by category
+@login_required
+def category():
+    pass
