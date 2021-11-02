@@ -8,23 +8,11 @@ from django.forms import ModelForm
 
 from .models import User, Listing, Bid, Comment
 
-class NewItemForm(ModelForm):
+class NewListing(ModelForm):
     class Meta:
         model = Listing
         fields = "__all__"
 
-#TODO: a django form for a new listing
-"""
-Form fields:
-
-1. CharField - Title
-2. TextArea - description
-3. IntegerField - starting bid
-4. (optional) URL - image
-5. CharField/SelectMenu(?) - category
-"""
-class NewListing():
-    pass
 
 #TODO: display listings
 def index(request):
@@ -94,8 +82,11 @@ def view_listing():
 def create_listing(request):
     if request.method == "GET":
         return render(request, "auctions/create.html", {
-            "form": NewItemForm()
+            "form": NewListing()
         })
+    else:
+        form = NewListing(request.POST)
+        return HttpResponse(form)
 
 
 #TODO: display user's watchlist (maybe I need a DB table or another DS to keep track of the watchlist?)
