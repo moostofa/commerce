@@ -1,10 +1,8 @@
 from django.contrib.auth.models import AbstractUser
 from django.db import models
 from django.db.models.deletion import CASCADE
-from django.db.models.fields import CharField, DateTimeField, IntegerField, TextField
+from django.db.models.fields import CharField, DateTimeField, FloatField, IntegerField, TextField
 from django.db.models.fields.related import ForeignKey
-
-from auctions.views import category
 
 #website users
 class User(AbstractUser):
@@ -22,10 +20,11 @@ Possible columns:
 6. CharField(?) - item category
 """
 class Listing(models.Model):
-    title = CharField()
-    created = DateTimeField
-    description = TextField
-    category = CharField
+    title = CharField(max_length=20)
+    price = FloatField()
+    created = DateTimeField()
+    description = TextField()
+    category = CharField(max_length=10)
 
 
 """
@@ -38,10 +37,10 @@ Possible columns:
 """
 class Bid(models.Model):
     listing = ForeignKey(
-        "Listing",
-        on_delete=models.CASCADE()
+        Listing,
+        on_delete=models.CASCADE
     )
-    bid = IntegerField()
+    bid = FloatField()
     bid_count = IntegerField()
 
 
@@ -55,11 +54,11 @@ Possible columns:
 """
 class Comment(models.Model):
     user = ForeignKey(
-        "User",
-        on_delete=CASCADE()
+        User,
+        on_delete=CASCADE
     )
     listing = ForeignKey(
-        "Listing",
-        on_delete=CASCADE()
+        Listing,
+        on_delete=CASCADE
     )
     comment = TextField()
