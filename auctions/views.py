@@ -78,9 +78,12 @@ def register(request):
 #TODO: display all info about the listing
 @login_required
 def view_listing(request, id):
+    #GET request: take user to page with listing info, passing in the item as context
     if request.method == "GET":
         return render(request, "auctions/page.html", {
-            "item": Listing.objects.get(pk = int(id))
+            "item": Listing.objects.get(pk = int(id)),
+            #item_in_watchling returns a bool indicating whether or not the chosen item is in the user's watchlist
+            "item_in_watchlist": int(id) in Watchlist.objects.values_list("listing_id", flat=True)
         })
     else:
         return HttpResponse(request.POST["watchlist-action"])
