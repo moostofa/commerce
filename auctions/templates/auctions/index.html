@@ -3,7 +3,13 @@
 {% block body %}
     <h2>Active Listings</h2>
     {% for entry in listings %}
-        <h4>{{ entry }}</h4>
+        <div>
+            <h4>{{ entry.title }}</h4>
+            <h6>Price: ${{ entry.price }}</h6>
+            <p>Created {{ entry.created }}</p>
+            <p>Description: {{ entry.description }}</p>
+            <p>Category: {{ entry.category }}</p>
+        </div>
+        <hr>
     {% endfor %}
-    {{ listings }}
 {% endblock %}
