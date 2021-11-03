@@ -2,6 +2,8 @@
 
 {% block body %}
     <h2>Active Listings</h2>
-
-    TODO
+    {% for entry in listings %}
+        <h4>{{ entry }}</h4>
+    {% endfor %}
+    {{ listings }}
 {% endblock %}
