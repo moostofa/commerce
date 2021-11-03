@@ -4,7 +4,7 @@
     <h2>Active Listings</h2>
     {% for entry in listings %}
         <div>
-            <h4>{{ entry.title }}</h4>
+            <h4><a href="{% url 'view_listing' {{ entry.id }} %}">{{ entry.title }}</a></h4>
             <h6>Seller: {{ entry.seller}}</h6>
             <h6>Price: ${{ entry.price }}</h6>
             <p>Created {{ entry.created }}</p>

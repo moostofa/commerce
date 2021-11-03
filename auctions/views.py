@@ -8,6 +8,8 @@ from django.forms import ModelForm
 
 from .models import User, Listing, Bid, Comment
 
+#the form a user will fill out to create a new listing
+#all model fields will be present except for the time created (handled in models.py) and who created it (user)
 class NewListing(ModelForm):
     class Meta:
         model = Listing
@@ -75,7 +77,8 @@ def register(request):
 
 #TODO: display all info about the listing
 @login_required
-def view_listing():
+def view_listing(request, id):
+    return HttpResponse(Listing.objects.get(pk = int(id)))
     pass
 
 
@@ -93,7 +96,7 @@ def create_listing(request):
         if not form.is_valid():
             return HttpResponse("error")
         
-        #create a database entry using the form data, inserting it into the model (table)
+        #create a database entry using the form data, inserting it into the Listing model (table)
         model = Listing(
             title = form.cleaned_data["title"],
             price = form.cleaned_data["price"],
@@ -110,11 +113,11 @@ def create_listing(request):
 
 #TODO: display user's watchlist (maybe I need a DB table or another DS to keep track of the watchlist?)
 @login_required
-def watchlist():
+def watchlist(request):
     pass
 
 
 #TODO: display listings by category
 @login_required
-def category():
+def category(request):
     pass
