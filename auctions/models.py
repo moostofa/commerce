@@ -1,7 +1,8 @@
+from typing import Optional
 from django.contrib.auth.models import AbstractUser
 from django.db import models
 from django.db.models.deletion import CASCADE
-from django.db.models.fields import CharField, DateTimeField, DecimalField, IntegerField, TextField
+from django.db.models.fields import CharField, DateTimeField, DecimalField, IntegerField, TextField, URLField
 from django.db.models.fields.related import ForeignKey
 
 #website users
@@ -13,9 +14,10 @@ class Listing(models.Model):
     title = CharField(max_length=20)
     price = DecimalField(max_digits=9, decimal_places=2)
     seller = CharField(max_length=20)
-    created = DateTimeField(editable=False, auto_now_add=True)
+    created = DateTimeField(auto_now_add=True)
     description = TextField()
     category = CharField(max_length=20, blank=True, null=True)
+    image = URLField(blank=True, null=True)
 
     def __str__(self) -> str:
         return f"""

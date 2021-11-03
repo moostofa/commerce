@@ -11,7 +11,7 @@ from .models import User, Listing, Bid, Comment
 class NewListing(ModelForm):
     class Meta:
         model = Listing
-        fields = "__all__"
+        exclude = ["seller", "created"]
 
 
 #TODO: display listings
@@ -97,8 +97,10 @@ def create_listing(request):
         model = Listing(
             title = form.cleaned_data["title"],
             price = form.cleaned_data["price"],
+            seller = request.user.username,
             description = form.cleaned_data["description"],
-            category = form.cleaned_data["category"]
+            category = form.cleaned_data["category"],
+            image = form.cleaned_data["image"]
         )
 
         #save the entry and redirect user to index

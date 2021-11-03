@@ -5,10 +5,12 @@
     {% for entry in listings %}
         <div>
             <h4>{{ entry.title }}</h4>
+            <h6>Seller: {{ entry.seller}}</h6>
             <h6>Price: ${{ entry.price }}</h6>
             <p>Created {{ entry.created }}</p>
             <p>Description: {{ entry.description }}</p>
             <p>Category: {{ entry.category }}</p>
+            <img src="{{ entry.image }}" alt="{{ entry.title }}" width="10%" height="10%">
         </div>
         <hr>
     {% endfor %}
