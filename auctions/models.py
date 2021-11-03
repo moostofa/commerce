@@ -49,3 +49,13 @@ class Comment(models.Model):
         on_delete=CASCADE
     )
     comment = TextField()
+
+class Watchlist(models.Model):
+    User = ForeignKey(
+        User,
+        on_delete=CASCADE
+    )
+    item = ForeignKey(
+        Listing,
+        on_delete=CASCADE
+    )

@@ -6,7 +6,7 @@ from django.shortcuts import render
 from django.urls import reverse
 from django.forms import ModelForm
 
-from .models import User, Listing, Bid, Comment
+from .models import User, Listing, Bid, Comment, Watchlist
 
 #the form a user will fill out to create a new listing
 #all model fields will be present except for the time created (handled in models.py) and who created it (user)
