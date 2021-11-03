@@ -78,8 +78,12 @@ def register(request):
 #TODO: display all info about the listing
 @login_required
 def view_listing(request, id):
-    return HttpResponse(Listing.objects.get(pk = int(id)))
-    pass
+    if request.method == "GET":
+        return render(request, "auctions/page.html", {
+            "item": Listing.objects.get(pk = int(id))
+        })
+    else:
+        return HttpResponse(request.POST["watchlist-action"])
 
 
 #TODO: allow user to create a listing. Make a Django form for this.
