@@ -4,7 +4,7 @@
     <div>
         <form action="{% url 'view_listing' item.id %}" method="post">
             {% csrf_token %}
-            <!-- item_in_watchlist: a boolean value indicating whether the user has already added current item to watchlist-->
+            <!-- item_in_watchlist: a boolean value indicating whether the user has already added current item to watchlist -->
             {% if item_in_watchlist %}
                 <button name="watchlist-action" value="remove" type="submit">Remove from watchlist</button>
             {% else %}
