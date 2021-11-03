@@ -4,7 +4,11 @@
     <div>
         <form action="{% url 'view_listing' item.id %}" method="post">
             {% csrf_token %}
-            <button name="watchlist-action" value="add" type="submit">Add to watchlist</button>
+            {% if item_in_watchlist %}
+                <button name="watchlist-action" value="remove" type="submit">Remove from watchlist</button>
+            {% else %}
+                <button name="watchlist-action" value="add" type="submit">Add to watchlist</button>
+            {% endif %}
         </form>
     </div>
 
