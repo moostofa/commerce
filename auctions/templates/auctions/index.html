@@ -4,7 +4,12 @@
     <h2>Active Listings</h2>
     {% for entry in listings %}
         <div>
-            <h4><a href="{% url 'view_listing' entry.id %}">{{ entry.title }}</a></h4>
+            {% if user.is_authenticated %}
+                <h4><a href="{% url 'view_listing' entry.id %}">{{ entry.title }}</a></h4>
+            {% else %}
+                <h4>{{ entry.title }}</h4>
+            {% endif %}
+            
             <h6>Seller: {{ entry.seller}}</h6>
             <h6>Price: ${{ entry.price }}</h6>
             <p>Created {{ entry.created }}</p>
