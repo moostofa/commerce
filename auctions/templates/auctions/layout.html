@@ -30,6 +30,21 @@
                 <li class="nav-item">
                     <a class="nav-link" href="{% url 'categories' %}">Categories</a>
                 </li>
+
+                <li class="nav-item">
+                    <form action="{% url 'categories' %}" method="post">
+                        {% csrf_token %}
+                        <select name="category-selection" onchange="this.form.submit()">
+                            <option selected disabled>Search by category</option>
+                            {% for category in categories_list %}
+                                <option value="{{ category }}">{{ category }}</option>
+                            {% endfor %}
+                        </select>
+                    </form>
+                </li>
+
+                {% for category in categories_list %}
+                {% endfor %}
                 <li class="nav-item">
                     <a class="nav-link" href="{% url 'logout' %}">Log Out</a>
                 </li>
