@@ -152,7 +152,11 @@ def create_listing(request):
 #TODO: display user's watchlist (maybe I need a DB table or another DS to keep track of the watchlist?)
 @login_required
 def watchlist(request):
-    pass
+    if request.method == "GET":
+        users_watchlist = list(Watchlist.objects.filter(user_id = request.user.id).values_list("listing_id", flat = True))
+        return render(request, "auctions/watchlist.html", {
+            "items_in_watchlist": Listing.objects.filter(id__in = users_watchlist)
+        })
 
 
 #TODO: display listings by category
