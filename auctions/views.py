@@ -103,9 +103,21 @@ def watchlist_action(request, id):
 
 def make_bid(request, id):
     if request.method == "POST":
-        amount = request.POST["bid-amount"]
-        item = int(id)
-        return HttpResponse(f"A bid of {amount} on item ID {item}")
+        #get the data required
+        user_id = request.user.id 
+        listing_id = int(id) 
+        bid = request.POST["bid-amount"]
+
+        #insert into model the user who made the bid, on what item and the bid amount
+        Bid(user_id = user_id, listing_id = listing_id, bid = bid).save()
+
+        #update the price and bid count of the current listing
+        item = Listing.objects.get(pk = listing_id)
+        item.price = bid
+        item.bid_count += 1
+        item.save(update_fields = ["price", "bid_count"])
+
+        return HttpResponseRedirect(reverse("index"))
 
 
 #TODO: allow user to create a listing. Make a Django form for this.

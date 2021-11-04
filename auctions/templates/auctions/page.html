@@ -16,7 +16,6 @@
     <div>
         <h1>{{ item.title }}</h1>
         <ul>
-            <li>Price: ${{ item.price }}</li>
             <li>Seller: {{ item.seller}}</li>
             <li>DateTime created {{ item.created }}</li>
             <li>Description: {{ item.description }}</li>
@@ -25,6 +24,8 @@
     </div>  
     <div>
         <h2>Make a bid</h2>
+        <h4>Price: ${{ item.price }}</h4>
+        <p>Current number of bids: {{ item.bid_count}}</p>
         <form action="{% url 'make_bid' item.id %}" method="post">
             {% csrf_token %}
             <input type="number" name="bid-amount" placeholder="Amount" min="{{ item.price|add:'1' }}">
