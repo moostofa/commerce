@@ -26,7 +26,8 @@
     <div>
         <h2>Make a bid</h2>
         <form action="{% url 'make_bid' item.id %}" method="post">
-            <input type="number" value="bid-amount" placeholder="Amount" min="{{ item.price|add:'1' }}">
+            {% csrf_token %}
+            <input type="number" name="bid-amount" placeholder="Amount" min="{{ item.price|add:'1' }}">
             <input type="submit" value="Make bid">
         </form>
     </div>

@@ -99,8 +99,13 @@ def watchlist_action(request, id):
             Watchlist(user_id = request.user.id, listing_id = int(id)).save()
         elif action == "remove":
             Watchlist.objects.filter(user_id = request.user.id).filter(listing_id = int(id)).delete()
-            
     return HttpResponseRedirect(reverse("index"))
+
+def make_bid(request, id):
+    if request.method == "POST":
+        amount = request.POST["bid-amount"]
+        item = int(id)
+        return HttpResponse(f"A bid of {amount} on item ID {item}")
 
 
 #TODO: allow user to create a listing. Make a Django form for this.
