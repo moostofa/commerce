@@ -4,7 +4,7 @@ from django.db import IntegrityError
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render
 from django.urls import reverse
-from django.forms import ModelForm
+from django.forms import ModelForm, Form
 
 from .models import User, Listing, Bid, Comment, Watchlist
 
@@ -14,6 +14,10 @@ class NewListing(ModelForm):
     class Meta:
         model = Listing
         exclude = ["seller", "created"]
+
+
+class CategoryMenu(Form):
+    pass
 
 
 #TODO: display listings
@@ -162,4 +166,8 @@ def watchlist(request):
 #TODO: display listings by category
 @login_required
 def categories(request):
-    return render(request, "auctions/categories.html")
+    #pass in a canonicalised set of categories into template
+    categories = list(Listing.objects.values_list("category", flat = True))
+    return render(request, "auctions/categories.html", {
+        "categories": {category.lower().capitalize() for category in categories if category}
+    })
