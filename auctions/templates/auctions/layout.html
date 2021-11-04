@@ -29,7 +29,7 @@
                 </li>
 
                 <li class="nav-item">
-                    <form action="{% url 'categories' %}" method="post">
+                    <form action="{% url 'helper' %}" method="post">
                         {% csrf_token %}
                         <select name="category-selection" onchange="this.form.submit()">
                             <option selected disabled>Search by category</option>

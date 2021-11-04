@@ -181,6 +181,11 @@ def categories(request):
     else:
         return HttpResponseRedirect(reverse("category", args = [request.POST["category-selection"]]))
 
+
+def helper(request):
+    return HttpResponseRedirect(reverse("category", args = [request.POST["category-selection"]]))
+
+
 #TODO: list all items in the category (type) chosen by then user
-def category(request, type):
-    return HttpResponse(f"This is in the category view. The chosen category is: {type}")
+def category(request, choice):
+    return HttpResponse(f"This is in the category view. The chosen category is: {choice}")
