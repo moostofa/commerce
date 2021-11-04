@@ -161,5 +161,5 @@ def watchlist(request):
 
 #TODO: display listings by category
 @login_required
-def category(request):
-    pass
+def categories(request):
+    return render(request, "auctions/categories.html")
