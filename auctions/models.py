@@ -13,10 +13,10 @@ class Listing(models.Model):
     title = CharField(max_length=20)
     price = DecimalField(max_digits=9, decimal_places=2)
     seller = CharField(max_length=20)
-    created = DateTimeField(auto_now_add=True)
+    created = DateTimeField(editable=False, auto_now_add=True)
     description = TextField()
     category = CharField(max_length=20, blank=True, null=True)
-    image = URLField(blank=True, null=True)
+    image = URLField(verbose_name="Image URL", blank=True, null=True)
     bid_count = IntegerField(default=0)
 
     def __str__(self) -> str:

@@ -4,7 +4,7 @@ from django.db import IntegrityError
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render
 from django.urls import reverse
-from django.forms import ModelForm
+from django.forms import ModelForm, Form
 
 from .models import User, Listing, Bid, Comment, Watchlist
 
@@ -13,16 +13,17 @@ from .models import User, Listing, Bid, Comment, Watchlist
 class NewListing(ModelForm):
     class Meta:
         model = Listing
-        exclude = ["seller", "created"]
+        exclude = ["seller", "created", "bid_count"]
 
 
-#TODO: display listings
+# index page displays all listings
 def index(request):
     return render(request, "auctions/index.html", {
         "listings": Listing.objects.all()
     })
 
 
+# log user in (this was provided)
 def login_view(request):
     if request.method == "POST":
 
@@ -43,11 +44,13 @@ def login_view(request):
         return render(request, "auctions/login.html")
 
 
+# log user out (this was provided)
 def logout_view(request):
     logout(request)
     return HttpResponseRedirect(reverse("index"))
 
 
+# register user (this was provided)
 def register(request):
     if request.method == "POST":
         username = request.POST["username"]
@@ -75,7 +78,7 @@ def register(request):
         return render(request, "auctions/register.html")
 
 
-#TODO: display all info about the listing
+# display all information about a listing
 @login_required
 def view_listing(request, id):
     #GET request: take user to page with listing info, passing in the item as context
@@ -89,6 +92,7 @@ def view_listing(request, id):
         HttpResponseRedirect(reverse("index"))
 
 
+# add or remove an item from the user's watchlist
 def watchlist_action(request, id):
     if request.method == "POST":
         #get the action the user wanted to perform (add or remove)
@@ -101,6 +105,8 @@ def watchlist_action(request, id):
             Watchlist.objects.filter(user_id = request.user.id).filter(listing_id = int(id)).delete()
     return HttpResponseRedirect(reverse("index"))
 
+
+#allow user to make a bid on a certain item
 def make_bid(request, id):
     if request.method == "POST":
         #get the data required
@@ -117,10 +123,11 @@ def make_bid(request, id):
         item.bid_count += 1
         item.save(update_fields = ["price", "bid_count"])
 
+        #redirect user to index page
         return HttpResponseRedirect(reverse("index"))
 
 
-#TODO: allow user to create a listing. Make a Django form for this.
+# allow user to create a new listing
 @login_required
 def create_listing(request):
     if request.method == "GET":
@@ -149,7 +156,7 @@ def create_listing(request):
         return HttpResponseRedirect(reverse("index"))
 
 
-#TODO: display user's watchlist (maybe I need a DB table or another DS to keep track of the watchlist?)
+# display the user's watchlist
 @login_required
 def watchlist(request):
     if request.method == "GET":
@@ -159,7 +166,21 @@ def watchlist(request):
         })
 
 
-#TODO: display listings by category
+# take user to a page where they can select an item category to view
 @login_required
 def categories(request):
-    return render(request, "auctions/categories.html")
+    if request.method == "GET":
+        #get all categories from Listing model as a list()
+        categories = list(Listing.objects.values_list("category", flat = True))
+        #convert the list into a set() and sort it
+        categories = sorted({category.lower().capitalize() for category in categories if category})
+
+        return render(request, "auctions/categories.html", {
+            "categories": categories
+        })
+    else:
+        return HttpResponseRedirect(reverse("category", args = [request.POST["category-selection"]]))
+
+#TODO: list all items in the category (type) chosen by then user
+def category(request, type):
+    return HttpResponse(f"This is in the category view. The chosen category is: {type}")
