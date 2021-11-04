@@ -1,15 +1,10 @@
 {% extends "auctions/layout.html" %}
 
 {% block body %}
-    <h2>Active Listings</h2>
-    {% for item in listings %}
+    <h1>Watchlist</h1>
+    {% for item in items_in_watchlist %}
         <div>
-            {% if user.is_authenticated %}
-                <h4><a href="{% url 'view_listing' item.id %}">{{ item.title }}</a></h4>
-            {% else %}
-                <h4>{{ item.title }}</h4>
-            {% endif %}
-            
+            <h4><a href="{% url 'view_listing' item.id %}">{{ item.title }}</a></h4>
             <h6>Seller: {{ item.seller}}</h6>
             <h6>Price: ${{ item.price }}</h6>
             <p>Created {{ item.created }}</p>

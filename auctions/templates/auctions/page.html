@@ -2,7 +2,7 @@
 
 {% block body %}
     <div>
-        <form action="{% url 'view_listing' item.id %}" method="post">
+        <form action="{% url 'watchlist_action' item.id %}" method="post">
             {% csrf_token %}
             <!-- item_in_watchlist: a boolean value indicating whether the user has already added current item to watchlist -->
             {% if item_in_watchlist %}
@@ -16,12 +16,21 @@
     <div>
         <h1>{{ item.title }}</h1>
         <ul>
-            <li>Price: ${{ item.price }}</li>
             <li>Seller: {{ item.seller}}</li>
             <li>DateTime created {{ item.created }}</li>
             <li>Description: {{ item.description }}</li>
             <li>Category: {{ item.category }}</li>
         </ul>
     </div>  
+    <div>
+        <h2>Make a bid</h2>
+        <h4>Price: ${{ item.price }}</h4>
+        <p>Current number of bids: {{ item.bid_count}}</p>
+        <form action="{% url 'make_bid' item.id %}" method="post">
+            {% csrf_token %}
+            <input type="number" name="bid-amount" placeholder="Amount" min="{{ item.price|add:'1' }}">
+            <input type="submit" value="Make bid">
+        </form>
+    </div>
     <img src="{{ item.image }}" alt="{{ item.title }}" width="10%" height="10%">
 {% endblock %}

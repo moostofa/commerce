@@ -86,14 +86,37 @@ def view_listing(request, id):
             "item_in_watchlist": int(id) in Watchlist.objects.values_list("listing_id", flat=True)
         })
     else:
-        #if user pressed add to/remove from watchlist button
-        if request.POST["watchlist-action"]:
-            action = request.POST["watchlist-action"]
-            #explicitly comparing to "add" and "remove" incase user inspects element
-            if action == "add": 
-                Watchlist(user_id = request.user.id, listing_id = int(id)).save()
-            elif action == "remove":
-                Watchlist.objects.filter(user_id = request.user.id).filter(listing_id = int(id)).delete()
+        HttpResponseRedirect(reverse("index"))
+
+
+def watchlist_action(request, id):
+    if request.method == "POST":
+        #get the action the user wanted to perform (add or remove)
+        action = request.POST["watchlist-action"]
+
+        #explicitly comparing action to "add" and "remove" incase user inspects element
+        if action == "add": 
+            Watchlist(user_id = request.user.id, listing_id = int(id)).save()
+        elif action == "remove":
+            Watchlist.objects.filter(user_id = request.user.id).filter(listing_id = int(id)).delete()
+    return HttpResponseRedirect(reverse("index"))
+
+def make_bid(request, id):
+    if request.method == "POST":
+        #get the data required
+        user_id = request.user.id 
+        listing_id = int(id) 
+        bid = request.POST["bid-amount"]
+
+        #insert into model the user who made the bid, on what item and the bid amount
+        Bid(user_id = user_id, listing_id = listing_id, bid = bid).save()
+
+        #update the price and bid count of the current listing
+        item = Listing.objects.get(pk = listing_id)
+        item.price = bid
+        item.bid_count += 1
+        item.save(update_fields = ["price", "bid_count"])
+
         return HttpResponseRedirect(reverse("index"))
 
 
@@ -129,10 +152,14 @@ def create_listing(request):
 #TODO: display user's watchlist (maybe I need a DB table or another DS to keep track of the watchlist?)
 @login_required
 def watchlist(request):
-    pass
+    if request.method == "GET":
+        users_watchlist = list(Watchlist.objects.filter(user_id = request.user.id).values_list("listing_id", flat = True))
+        return render(request, "auctions/watchlist.html", {
+            "items_in_watchlist": Listing.objects.filter(id__in = users_watchlist)
+        })
 
 
 #TODO: display listings by category
 @login_required
-def category(request):
-    pass
+def categories(request):
+    return render(request, "auctions/categories.html")
