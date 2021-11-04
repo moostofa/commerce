@@ -18,6 +18,7 @@ class Listing(models.Model):
     description = TextField()
     category = CharField(max_length=20, blank=True, null=True)
     image = URLField(blank=True, null=True)
+    bid_count = IntegerField(default=0)
 
     def __str__(self) -> str:
         return f"""
@@ -26,17 +27,21 @@ class Listing(models.Model):
         seller = {self.seller}
         time created = {self.created},
         description = {self.description},
-        category = {self.category}
+        category = {self.category},
+        number of bids on item: {self.bid_count}
         """
 
 
 class Bid(models.Model):
+    user = ForeignKey(
+        User,
+        on_delete=CASCADE
+    )
     listing = ForeignKey(
         Listing,
         on_delete=models.CASCADE
     )
     bid = DecimalField(max_digits=9, decimal_places=2)
-    bid_count = IntegerField()
 
 
 class Comment(models.Model):
