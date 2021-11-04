@@ -86,15 +86,21 @@ def view_listing(request, id):
             "item_in_watchlist": int(id) in Watchlist.objects.values_list("listing_id", flat=True)
         })
     else:
-        #if user pressed add to/remove from watchlist button
-        if request.POST["watchlist-action"]:
-            action = request.POST["watchlist-action"]
-            #explicitly comparing to "add" and "remove" incase user inspects element
-            if action == "add": 
-                Watchlist(user_id = request.user.id, listing_id = int(id)).save()
-            elif action == "remove":
-                Watchlist.objects.filter(user_id = request.user.id).filter(listing_id = int(id)).delete()
-        return HttpResponseRedirect(reverse("index"))
+        HttpResponseRedirect(reverse("index"))
+
+
+def watchlist_action(request, id):
+    if request.method == "POST":
+        #get the action the user wanted to perform (add or remove)
+        action = request.POST["watchlist-action"]
+
+        #explicitly comparing action to "add" and "remove" incase user inspects element
+        if action == "add": 
+            Watchlist(user_id = request.user.id, listing_id = int(id)).save()
+        elif action == "remove":
+            Watchlist.objects.filter(user_id = request.user.id).filter(listing_id = int(id)).delete()
+            
+    return HttpResponseRedirect(reverse("index"))
 
 
 #TODO: allow user to create a listing. Make a Django form for this.
