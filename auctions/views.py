@@ -79,6 +79,32 @@ def register(request):
         return render(request, "auctions/register.html")
 
 
+# allow user to create a new listing
+@login_required
+def create_listing(request):
+    if request.method == "GET":
+        #display form for creating a listing
+        return render(request, "auctions/create.html", {
+            "form": NewListing()
+        })
+    else:
+        #get form data
+        form = NewListing(request.POST)
+        if not form.is_valid():
+            return HttpResponse("error")
+        
+        #create a database entry using the form data, inserting it into the Listing model (table)
+        #neat little trick: unpacking a dictionary (form is a dict)
+        new_item = Listing(**form.cleaned_data) 
+        new_item.seller = request.user
+        if new_item.category:
+            new_item.category = new_item.category.lower().capitalize()
+        new_item.save()
+
+        # redirect user to index
+        return HttpResponseRedirect(reverse("index"))
+
+
 # display all information about a listing
 @login_required
 def view_listing(request, id):
@@ -132,31 +158,6 @@ def make_bid(request, id):
         item.save(update_fields = ["price", "bid_count"])
 
         #redirect user to index page
-        return HttpResponseRedirect(reverse("index"))
-
-
-# allow user to create a new listing
-@login_required
-def create_listing(request):
-    if request.method == "GET":
-        #display form for creating a listing
-        return render(request, "auctions/create.html", {
-            "form": NewListing()
-        })
-    else:
-        #get form data
-        form = NewListing(request.POST)
-        if not form.is_valid():
-            return HttpResponse("error")
-        
-        #create a database entry using the form data, inserting it into the Listing model (table)
-        #neat little trick: unpacking a dictionary (form is a dict)
-        new_item = Listing(**form.cleaned_data) 
-        new_item.seller = request.user
-        new_item.category = form.cleaned_data["category"].lower().capitalize()
-        new_item.save()
-
-        # redirect user to index
         return HttpResponseRedirect(reverse("index"))
 
 
