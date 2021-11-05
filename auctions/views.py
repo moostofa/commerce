@@ -150,14 +150,11 @@ def create_listing(request):
             return HttpResponse("error")
         
         #create a database entry using the form data, inserting it into the Listing model (table)
-        Listing(
-            title = form.cleaned_data["title"],
-            price = form.cleaned_data["price"],
-            seller = request.user,
-            description = form.cleaned_data["description"],
-            category = form.cleaned_data["category"].lower().capitalize(),
-            image = form.cleaned_data["image"]
-        ).save()
+        #neat little trick: unpacking a dictionary (form is a dict)
+        new_item = Listing(**form.cleaned_data) 
+        new_item.seller = request.user
+        new_item.category = form.cleaned_data["category"].lower().capitalize()
+        new_item.save()
 
         # redirect user to index
         return HttpResponseRedirect(reverse("index"))
