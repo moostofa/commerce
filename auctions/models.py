@@ -10,14 +10,17 @@ class User(AbstractUser):
 
 
 class Listing(models.Model):
+    seller = ForeignKey(
+        User,
+        on_delete=CASCADE
+    )
+
     title = CharField(max_length=20)
     price = DecimalField(max_digits=9, decimal_places=2)
-    seller = CharField(max_length=20)
     created = DateTimeField(editable=False, auto_now_add=True)
     description = TextField()
     category = CharField(max_length=20, blank=True, null=True)
     image = URLField(verbose_name="Image URL", blank=True, null=True)
-    bid_count = IntegerField(default=0)
 
     def __str__(self) -> str:
         return f"""
@@ -27,7 +30,6 @@ class Listing(models.Model):
         time created = {self.created},
         description = {self.description},
         category = {self.category},
-        number of bids on item: {self.bid_count}
         """
 
 
@@ -36,15 +38,16 @@ FOREIGN KEY Bid (user_id) REFERENCES PRIMARY KEY User (id)
 FOREIGN KEY Bid (listing_id) REFERENCES PRIMARY KEY Listing (id)
 """
 class Bid(models.Model):
-    user = ForeignKey(
-        User,
-        on_delete=CASCADE
-    )
     listing = ForeignKey(
         Listing,
         on_delete=models.CASCADE
     )
+    winner = ForeignKey(
+        User,
+        on_delete=CASCADE
+    )
     bid = DecimalField(max_digits=9, decimal_places=2)
+    bid_count = IntegerField(default=0)
 
 
 """
@@ -52,12 +55,12 @@ FOREIGN KEY Comment (user_id) REFERENCES PRIMARY KEY User (id)
 FOREIGN KEY Comment (listing_id) REFERENCES PRIMARY KEY Listing (id)
 """
 class Comment(models.Model):
-    user = ForeignKey(
-        User,
-        on_delete=CASCADE
-    )
     listing = ForeignKey(
         Listing,
+        on_delete=CASCADE
+    )
+    user = ForeignKey(
+        User,
         on_delete=CASCADE
     )
     comment = TextField()

@@ -14,7 +14,7 @@ from .models import Bid, Comment, Listing, User, Watchlist
 class NewListing(ModelForm):
     class Meta:
         model = Listing
-        exclude = ["seller", "created", "bid_count"]
+        exclude = ["seller", "created"]
 
 
 # index page displays all listings. NOTE: category view also redirects to this page, but with a filtered QuerySet
@@ -153,7 +153,7 @@ def create_listing(request):
         Listing(
             title = form.cleaned_data["title"],
             price = form.cleaned_data["price"],
-            seller = request.user.username,
+            seller = request.user,
             description = form.cleaned_data["description"],
             category = form.cleaned_data["category"].lower().capitalize(),
             image = form.cleaned_data["image"]
