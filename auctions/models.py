@@ -31,6 +31,10 @@ class Listing(models.Model):
         """
 
 
+"""
+FOREIGN KEY Bid (user_id) REFERENCES PRIMARY KEY User (id)
+FOREIGN KEY Bid (listing_id) REFERENCES PRIMARY KEY Listing (id)
+"""
 class Bid(models.Model):
     user = ForeignKey(
         User,
@@ -43,6 +47,10 @@ class Bid(models.Model):
     bid = DecimalField(max_digits=9, decimal_places=2)
 
 
+"""
+FOREIGN KEY Comment (user_id) REFERENCES PRIMARY KEY User (id)
+FOREIGN KEY Comment (listing_id) REFERENCES PRIMARY KEY Listing (id)
+"""
 class Comment(models.Model):
     user = ForeignKey(
         User,
@@ -54,6 +62,11 @@ class Comment(models.Model):
     )
     comment = TextField()
 
+
+"""
+FOREIGN KEY Watchlist (user_id) REFERENCES PRIMARY KEY User (id)
+FOREIGN KEY Watchlist (listing_id) REFERENCES PRIMARY KEY Listing (id)
+"""
 class Watchlist(models.Model):
     user = ForeignKey(
         User,

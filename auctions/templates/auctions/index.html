@@ -2,9 +2,12 @@
 
 {% block body %}
     <h2>Active Listings</h2>
+
+    <!-- If this page is to display the category view, the "category" context will be present. Otherwise, this field is empty -->
     {% if category %}
         <h4>Category: {{ category }}</h4>
     {% endif %}
+
     {% for item in listings %}
         <div>
             {% if user.is_authenticated %}

@@ -1,12 +1,13 @@
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.db import IntegrityError
+from django.forms import ModelForm
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render
 from django.urls import reverse
-from django.forms import ModelForm, Form, ChoiceField
 
-from .models import User, Listing, Bid, Comment, Watchlist
+from .models import Bid, Comment, Listing, User, Watchlist
+
 
 #the form a user will fill out to create a new listing
 #all model fields will be present except for the time created (handled in models.py) and who created it (user)
@@ -16,7 +17,7 @@ class NewListing(ModelForm):
         exclude = ["seller", "created", "bid_count"]
 
 
-# index page displays all listings
+# index page displays all listings. NOTE: category view also redirects to this page, but with a filtered QuerySet
 def index(request):
     return render(request, "auctions/index.html", {
         "listings": Listing.objects.all()
@@ -84,15 +85,17 @@ def view_listing(request, id):
     #GET request: take user to page with listing info, passing in the item as context
     if request.method == "GET":
         return render(request, "auctions/page.html", {
+            #pass in the specific listing item the user wants to view
             "item": Listing.objects.get(pk = int(id)),
+
             #item_in_watchling returns a bool indicating whether or not the chosen item is in the user's watchlist
+            #this is used to determine whether the watchlist button should display "add to" or "remove from"
             "item_in_watchlist": int(id) in Watchlist.objects.values_list("listing_id", flat=True)
         })
-    else:
-        HttpResponseRedirect(reverse("index"))
 
 
 # add or remove an item from the user's watchlist
+@login_required
 def watchlist_action(request, id):
     if request.method == "POST":
         #get the action the user wanted to perform (add or remove)
@@ -107,6 +110,7 @@ def watchlist_action(request, id):
 
 
 #allow user to make a bid on a certain item
+@login_required
 def make_bid(request, id):
     if request.method == "POST":
         #get the data required
@@ -114,8 +118,12 @@ def make_bid(request, id):
         listing_id = int(id) 
         bid = request.POST["bid-amount"]
 
-        #insert into model the user who made the bid, on what item and the bid amount
-        Bid(user_id = user_id, listing_id = listing_id, bid = bid).save()
+        #insert into model the user who made the bid, on what item, and the bid amount
+        Bid(
+            user_id = user_id, 
+            listing_id = listing_id ,
+            bid = bid
+        ).save()
 
         #update the price and bid count of the current listing
         item = Listing.objects.get(pk = listing_id)
@@ -165,11 +173,13 @@ def watchlist(request):
         })
 
 
+# takes POST data from category select menu and passes it as a parameter to the category view
+# NOTE: I could not send POST data from a select menu directly to the category view. How do I do this?
 def helper(request):
     return HttpResponseRedirect(reverse("category", args = [request.POST["category-selection"]]))
 
 
-#TODO: list all items in the category chosen by then user
+# list all items in the category chosen by then user
 def category(request, choice):
     if request.method == "GET":
         return render(request, "auctions/index.html", {
