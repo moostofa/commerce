@@ -171,4 +171,8 @@ def helper(request):
 
 #TODO: list all items in the category chosen by then user
 def category(request, choice):
-    return HttpResponse(f"This is in the category view. The chosen category is: {choice}")
+    if request.method == "GET":
+        return render(request, "auctions/index.html", {
+            "category": choice,
+            "listings": Listing.objects.filter(category = choice)
+        })

@@ -1,10 +1,7 @@
 {% extends "auctions/layout.html" %}
 
 {% block body %}
-    <h2>Active Listings</h2>
-    {% if category %}
-        <h4>Category: {{ category }}</h4>
-    {% endif %}
+    <h2>Category search</h2>
     {% for item in listings %}
         <div>
             {% if user.is_authenticated %}
