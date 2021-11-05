@@ -142,17 +142,16 @@ def create_listing(request):
             return HttpResponse("error")
         
         #create a database entry using the form data, inserting it into the Listing model (table)
-        model = Listing(
+        Listing(
             title = form.cleaned_data["title"],
             price = form.cleaned_data["price"],
             seller = request.user.username,
             description = form.cleaned_data["description"],
-            category = form.cleaned_data["category"],
+            category = form.cleaned_data["category"].lower().capitalize(),
             image = form.cleaned_data["image"]
-        )
+        ).save()
 
-        #save the entry and redirect user to index
-        model.save()
+        # redirect user to index
         return HttpResponseRedirect(reverse("index"))
 
 
@@ -166,26 +165,10 @@ def watchlist(request):
         })
 
 
-# take user to a page where they can select an item category to view
-@login_required
-def categories(request):
-    if request.method == "GET":
-        #get all categories from Listing model as a list()
-        categories = list(Listing.objects.values_list("category", flat = True))
-        #convert the list into a set() and sort it
-        categories = sorted({category.lower().capitalize() for category in categories if category})
-
-        return render(request, "auctions/categories.html", {
-            "categories": categories
-        })
-    else:
-        return HttpResponseRedirect(reverse("category", args = [request.POST["category-selection"]]))
-
-
 def helper(request):
     return HttpResponseRedirect(reverse("category", args = [request.POST["category-selection"]]))
 
 
-#TODO: list all items in the category (type) chosen by then user
+#TODO: list all items in the category chosen by then user
 def category(request, choice):
     return HttpResponse(f"This is in the category view. The chosen category is: {choice}")
