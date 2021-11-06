@@ -3,17 +3,12 @@
 {% block body %}
     {% if not item.active %}
         <h1>Auction has been closed.</h1>
-
         {% if user == bid_info.winner %}
+
             <h4>Congratulaions! You won the auction.</h4>
             <h4>You have obtained the auction item for ${{ bid_info.bid }}</h4>
 
-            <form action="{% url 'delist' item.id %}" method="post">
-                {% csrf_token %}
-                <button type="submit">Accept</button>
-            </form>
         {% endif %}
-        
     {% endif %}
     <div>
         {% if item.seller == user and item.active %}
@@ -59,7 +54,6 @@
 
         <div>
             <h2>Make a bid</h2>
-
             {% if bid_info %}
 
                 <h4>Current bid: ${{ bid_info.bid }}</h4>
@@ -73,13 +67,15 @@
 
             <form action="{% url 'make_bid' item.id %}" method="post">
                 {% csrf_token %}
-
                 {% if bid_info %}
-                    <input type="number" name="bid-amount" placeholder="Amount" min="{{ bid_info.bid|add:'1' }}">
-                {% else %}
-                    <input type="number" name="bid-amount" placeholder="Amount" min="{{ item.price|add:'1' }}">
-                {% endif %}
 
+                    <input type="number" name="bid-amount" placeholder="Amount" min="{{ bid_info.bid|add:'1' }}">
+
+                {% else %}
+
+                    <input type="number" name="bid-amount" placeholder="Amount" min="{{ item.price|add:'1' }}">
+
+                {% endif %}
                 <input type="submit" value="Place bid">
             </form>
         </div>

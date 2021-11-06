@@ -83,6 +83,10 @@ class Watchlist(Model):
     )
 
 
+"""
+FOREIGN KEY ObtainedItem (user_id) REFERENCES PRIMARY KEY User (id)
+FOREIGN KEY ObtainedItem (listing_id) REFERENCES PRIMARY KEY Listing (id)
+"""
 class ObtainedItem(Model):
     user = ForeignKey(
         User,

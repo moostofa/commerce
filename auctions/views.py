@@ -188,19 +188,22 @@ def category(request, choice):
 
 
 # user who created the listing can close the auction
+@login_required
 def close_auction(request, id):
     if request.method == "POST":
+        # add the item to the winner's "obtained items" model and deactivate the listing
         winner = Bid.objects.get(listing_id = int(id)).winner
         ObtainedItem(user = winner, listing = Listing.objects.get(pk = int(id))).save()
         Listing.objects.filter(pk = int(id)).update(active = False)
     return HttpResponseRedirect(reverse("index"))
 
 
-# show users profile: what items they have listed and what items they have won
+# show users profile: what active items they have listed and what items they have won
+@login_required
 def profile(request):
     if request.method == "GET":
         items_won = ObtainedItem.objects.filter(user = request.user).values_list("listing", flat = True)
         return render(request, "auctions/profile.html", {
-            "my_listings": Listing.objects.filter(seller = request.user),
+            "my_listings": Listing.objects.filter(active = True).filter(seller = request.user),
             "my_winnings": Listing.objects.filter(id__in = items_won)
         })
