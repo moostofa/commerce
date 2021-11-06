@@ -2,9 +2,10 @@ from django.contrib.auth.models import AbstractUser
 from django.db.models import Model
 from django.db.models.deletion import CASCADE, PROTECT
 from django.db.models.fields import BooleanField, CharField, DateTimeField, DecimalField, IntegerField, TextField, URLField
-from django.db.models.fields.related import ForeignKey, ManyToManyField
+from django.db.models.fields.related import ForeignKey
 
-#website users
+
+# website users
 class User(AbstractUser):
     pass
 
@@ -22,17 +23,6 @@ class Listing(Model):
     category = CharField(max_length=20, blank=True, null=True)
     image = URLField(verbose_name="Image URL", blank=True, null=True)
     active = BooleanField(default=True)
-
-    def __str__(self) -> str:
-        return f"""
-        title = {self.title},
-        price = ${self.price},
-        seller = {self.seller}
-        time created = {self.created},
-        description = {self.description},
-        category = {self.category},
-        the listing is open: {self.active}
-        """
 
 
 """

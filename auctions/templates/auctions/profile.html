@@ -16,6 +16,9 @@
         </div>
         <hr>
 
+    {% empty %}
+        <h4>No active listings</h4>
+
     {% endfor %}
 
     <h1>My winnings</h1>
@@ -31,6 +34,6 @@
     
         {% empty %}
         <h4>No winnings at the moment.</h4>
-        
+
     {% endfor %}
 {% endblock %}

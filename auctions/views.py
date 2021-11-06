@@ -10,8 +10,8 @@ from django.urls import reverse
 from .models import Bid, Comment, Listing, ObtainedItem, User, Watchlist
 
 
-#the form a user will fill out to create a new listing
-#all model fields will be present except for the time created (handled in models.py) and who created it (user)
+# the form a user will fill out to create a new listing
+# all model fields will be present except for the time created (handled in models.py) and who created it (user)
 class NewListing(ModelForm):
     class Meta:
         model = Listing
@@ -84,7 +84,7 @@ def register(request):
 @login_required
 def create_listing(request):
     if request.method == "GET":
-        #display form for creating a listing
+        # display form for creating a listing
         return render(request, "auctions/create.html", {
             "form": NewListing()
         })
@@ -94,8 +94,8 @@ def create_listing(request):
         if not form.is_valid():
             return HttpResponse("error")
         
-        #create a database entry using the form data, inserting it into the Listing model (table)
-        #neat little trick: unpacking a dictionary (the form is a dict)
+        # create a database entry using the form data, inserting it into the Listing model (table)
+        # neat little trick: unpacking a dictionary (the form is a dict)
         new_item = Listing(**form.cleaned_data) 
         new_item.seller = request.user
         if new_item.category:
