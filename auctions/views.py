@@ -5,6 +5,7 @@ from django.forms import ModelForm
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render
 from django.urls import reverse
+from django.db.models import F
 
 from .models import Bid, Comment, Listing, User, Watchlist
 
@@ -116,7 +117,7 @@ def view_listing(request, id):
 
             #item_in_watchling returns a bool indicating whether or not the chosen item is in the user's watchlist
             #this is used to determine whether the watchlist button should display "add to" or "remove from"
-            "item_in_watchlist": int(id) in Watchlist.objects.values_list("listing_id", flat=True)
+            "item_in_watchlist": int(id) in Watchlist.objects.values_list("listing_id", flat=True),
         })
 
 
@@ -149,23 +150,17 @@ def watchlist(request):
 @login_required
 def make_bid(request, id):
     if request.method == "POST":
-        #get the data required
-        user_id = request.user.id 
-        listing_id = int(id) 
-        bid = request.POST["bid-amount"]
+        listing_item = Listing.objects.get(pk = int(id)) 
 
         #insert into model the user who made the bid, on what item, and the bid amount
-        Bid(
-            user_id = user_id, 
-            listing_id = listing_id ,
-            bid = bid
-        ).save()
-
-        #update the price and bid count of the current listing
-        item = Listing.objects.get(pk = listing_id)
-        item.price = bid
-        item.bid_count += 1
-        item.save(update_fields = ["price", "bid_count"])
+        Bid.objects.update_or_create(
+            listing = listing_item,
+            defaults={
+                "winner": request.user,
+                "bid": request.POST["bid-amount"]
+            }
+        )
+        Bid.objects.filter(listing = listing_item).update(bid_count = F("bid_count") + 1)
 
         #redirect user to index page
         return HttpResponseRedirect(reverse("index"))
