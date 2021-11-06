@@ -111,13 +111,17 @@ def create_listing(request):
 def view_listing(request, id):
     #GET request: take user to page with listing info, passing in the item as context
     if request.method == "GET":
+        listing_id = int(id)
+        item = Listing.objects.get(pk = listing_id)
+
         return render(request, "auctions/page.html", {
-            #pass in the specific listing item the user wants to view
-            "item": Listing.objects.get(pk = int(id)),
+            #pass in the specific listing item the user wants to view & its bid details
+            "item": item,
+            "bid_info": Bid.objects.get(listing = item) if Bid.objects.filter(listing = item) else None,
 
             #item_in_watchling returns a bool indicating whether or not the chosen item is in the user's watchlist
-            #this is used to determine whether the watchlist button should display "add to" or "remove from"
-            "item_in_watchlist": int(id) in Watchlist.objects.values_list("listing_id", flat=True),
+            #in template, this is used to determine whether the watchlist button should display "add to" or "remove from"
+            "item_in_watchlist": listing_id in Watchlist.objects.values_list("listing_id", flat=True),
         })
 
 
@@ -152,7 +156,7 @@ def make_bid(request, id):
     if request.method == "POST":
         listing_item = Listing.objects.get(pk = int(id)) 
 
-        #insert into model the user who made the bid, on what item, and the bid amount
+        #insert bid details into Bid model - "winner" is the current highes bidder
         Bid.objects.update_or_create(
             listing = listing_item,
             defaults={
@@ -160,6 +164,7 @@ def make_bid(request, id):
                 "bid": request.POST["bid-amount"]
             }
         )
+        #update bid_count
         Bid.objects.filter(listing = listing_item).update(bid_count = F("bid_count") + 1)
 
         #redirect user to index page
@@ -169,7 +174,8 @@ def make_bid(request, id):
 # takes POST data from category select menu and passes it as a parameter to the category view
 # NOTE: I could not send POST data from a select menu directly to the category view. How do I do this?
 def helper(request):
-    return HttpResponseRedirect(reverse("category", args = [request.POST["category-selection"]]))
+    if request.method == "POST":
+        return HttpResponseRedirect(reverse("category", args = [request.POST["category-selection"]]))
 
 
 # list all items in the category chosen by then user
