@@ -209,6 +209,9 @@ def delist(request, id):
     return HttpResponseRedirect(reverse("index"))
 
 
-
-# NOTE:
-# ObtainedItem.objects.get(user = request.user).item.all()
+def profile(request):
+    if request.method == "GET":
+        return render(request, "auctions/profile.html", {
+            "my_listings": Listing.objects.filter(seller = request.user),
+            "my_winnings": ObtainedItem.objects.filter(user = request.user)[0].item.all()
+        })
