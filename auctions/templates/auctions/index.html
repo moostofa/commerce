@@ -9,6 +9,7 @@
     {% endif %}
 
     {% for item in listings %}
+
         <div>
             {% if user.is_authenticated %}
                 <h4><a href="{% url 'view_listing' item.id %}">{{ item.title }}</a></h4>
@@ -17,12 +18,16 @@
             {% endif %}
             
             <h6>Seller: {{ item.seller}}</h6>
-            <h6>Price: ${{ item.price }}</h6>
-            <p>Created {{ item.created }}</p>
+            <h6>Listing price: ${{ item.price }}</h6>
             <p>Description: {{ item.description }}</p>
             <p>Category: {{ item.category }}</p>
             <img src="{{ item.image }}" alt="{{ item.title }}" width="10%" height="10%">
+            <p>Created {{ item.created }}</p>
         </div>
         <hr>
+
+    {% empty %}
+        <h4>No active listings</h4>
+
     {% endfor %}
 {% endblock %}

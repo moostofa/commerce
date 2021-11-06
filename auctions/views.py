@@ -1,26 +1,27 @@
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.db import IntegrityError
+from django.db.models import F
 from django.forms import ModelForm
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render
 from django.urls import reverse
 
-from .models import Bid, Comment, Listing, User, Watchlist
+from .models import Bid, Comment, Listing, ObtainedItem, User, Watchlist
 
 
-#the form a user will fill out to create a new listing
-#all model fields will be present except for the time created (handled in models.py) and who created it (user)
+# the form a user will fill out to create a new listing
+# all model fields will be present except for the time created (handled in models.py) and who created it (user)
 class NewListing(ModelForm):
     class Meta:
         model = Listing
-        exclude = ["seller", "created", "bid_count"]
+        exclude = ["seller", "created", "active"]
 
 
-# index page displays all listings. NOTE: category view also redirects to this page, but with a filtered QuerySet
+# index page displays all ACTIVE listings. NOTE: category view also redirects to this page, but with a filtered QuerySet
 def index(request):
     return render(request, "auctions/index.html", {
-        "listings": Listing.objects.all()
+        "listings": Listing.objects.filter(active = True)
     })
 
 
@@ -79,18 +80,48 @@ def register(request):
         return render(request, "auctions/register.html")
 
 
+# allow user to create a new listing
+@login_required
+def create_listing(request):
+    if request.method == "GET":
+        # display form for creating a listing
+        return render(request, "auctions/create.html", {
+            "form": NewListing()
+        })
+    else:
+        #get form data
+        form = NewListing(request.POST)
+        if not form.is_valid():
+            return HttpResponse("error")
+        
+        # create a database entry using the form data, inserting it into the Listing model (table)
+        # neat little trick: unpacking a dictionary (the form is a dict)
+        new_item = Listing(**form.cleaned_data) 
+        new_item.seller = request.user
+        if new_item.category:
+            new_item.category = new_item.category.lower().capitalize()
+        new_item.save()
+
+        # redirect user to index
+        return HttpResponseRedirect(reverse("index"))
+
+
 # display all information about a listing
 @login_required
 def view_listing(request, id):
     #GET request: take user to page with listing info, passing in the item as context
     if request.method == "GET":
+        listing_id = int(id)
+        item = Listing.objects.get(pk = listing_id)
+
         return render(request, "auctions/page.html", {
-            #pass in the specific listing item the user wants to view
-            "item": Listing.objects.get(pk = int(id)),
+            #pass in the specific listing item the user wants to view & its bid details
+            "item": item,
+            "bid_info": Bid.objects.get(listing = item) if Bid.objects.filter(listing = item) else None,
 
             #item_in_watchling returns a bool indicating whether or not the chosen item is in the user's watchlist
-            #this is used to determine whether the watchlist button should display "add to" or "remove from"
-            "item_in_watchlist": int(id) in Watchlist.objects.values_list("listing_id", flat=True)
+            #in template, this is used to determine whether the watchlist button should display "add to" or "remove from"
+            "item_in_watchlist": listing_id in Watchlist.objects.values_list("listing_id", flat=True),
         })
 
 
@@ -109,60 +140,6 @@ def watchlist_action(request, id):
     return HttpResponseRedirect(reverse("index"))
 
 
-#allow user to make a bid on a certain item
-@login_required
-def make_bid(request, id):
-    if request.method == "POST":
-        #get the data required
-        user_id = request.user.id 
-        listing_id = int(id) 
-        bid = request.POST["bid-amount"]
-
-        #insert into model the user who made the bid, on what item, and the bid amount
-        Bid(
-            user_id = user_id, 
-            listing_id = listing_id ,
-            bid = bid
-        ).save()
-
-        #update the price and bid count of the current listing
-        item = Listing.objects.get(pk = listing_id)
-        item.price = bid
-        item.bid_count += 1
-        item.save(update_fields = ["price", "bid_count"])
-
-        #redirect user to index page
-        return HttpResponseRedirect(reverse("index"))
-
-
-# allow user to create a new listing
-@login_required
-def create_listing(request):
-    if request.method == "GET":
-        #display form for creating a listing
-        return render(request, "auctions/create.html", {
-            "form": NewListing()
-        })
-    else:
-        #get form data
-        form = NewListing(request.POST)
-        if not form.is_valid():
-            return HttpResponse("error")
-        
-        #create a database entry using the form data, inserting it into the Listing model (table)
-        Listing(
-            title = form.cleaned_data["title"],
-            price = form.cleaned_data["price"],
-            seller = request.user.username,
-            description = form.cleaned_data["description"],
-            category = form.cleaned_data["category"].lower().capitalize(),
-            image = form.cleaned_data["image"]
-        ).save()
-
-        # redirect user to index
-        return HttpResponseRedirect(reverse("index"))
-
-
 # display the user's watchlist
 @login_required
 def watchlist(request):
@@ -173,16 +150,60 @@ def watchlist(request):
         })
 
 
+#allow user to make a bid on a certain item
+@login_required
+def make_bid(request, id):
+    if request.method == "POST":
+        listing_item = Listing.objects.get(pk = int(id)) 
+
+        #insert bid details into Bid model - "winner" is the current highes bidder
+        Bid.objects.update_or_create(
+            listing = listing_item,
+            defaults={
+                "winner": request.user,
+                "bid": request.POST["bid-amount"]
+            }
+        )
+        #update bid_count
+        Bid.objects.filter(listing = listing_item).update(bid_count = F("bid_count") + 1)
+
+        #redirect user to index page
+        return HttpResponseRedirect(reverse("index"))
+
+
 # takes POST data from category select menu and passes it as a parameter to the category view
 # NOTE: I could not send POST data from a select menu directly to the category view. How do I do this?
 def helper(request):
-    return HttpResponseRedirect(reverse("category", args = [request.POST["category-selection"]]))
+    if request.method == "POST":
+        return HttpResponseRedirect(reverse("category", args = [request.POST["category-selection"]]))
 
 
-# list all items in the category chosen by then user
+# list all ACTIVE items in the category chosen by then user
 def category(request, choice):
     if request.method == "GET":
         return render(request, "auctions/index.html", {
             "category": choice,
-            "listings": Listing.objects.filter(category = choice)
+            "listings": Listing.objects.filter(active = True).filter(category = choice)
+        })
+
+
+# user who created the listing can close the auction
+@login_required
+def close_auction(request, id):
+    if request.method == "POST":
+        # add the item to the winner's "obtained items" model and deactivate the listing
+        winner = Bid.objects.get(listing_id = int(id)).winner
+        ObtainedItem(user = winner, listing = Listing.objects.get(pk = int(id))).save()
+        Listing.objects.filter(pk = int(id)).update(active = False)
+    return HttpResponseRedirect(reverse("index"))
+
+
+# show users profile: what active items they have listed and what items they have won
+@login_required
+def profile(request):
+    if request.method == "GET":
+        items_won = ObtainedItem.objects.filter(user = request.user).values_list("listing", flat = True)
+        return render(request, "auctions/profile.html", {
+            "my_listings": Listing.objects.filter(active = True).filter(seller = request.user),
+            "my_winnings": Listing.objects.filter(id__in = items_won)
         })
