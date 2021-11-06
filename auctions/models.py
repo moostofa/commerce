@@ -1,15 +1,15 @@
 from django.contrib.auth.models import AbstractUser
-from django.db import models
+from django.db.models import Model
 from django.db.models.deletion import CASCADE
 from django.db.models.fields import BooleanField, CharField, DateTimeField, DecimalField, IntegerField, TextField, URLField
-from django.db.models.fields.related import ForeignKey
+from django.db.models.fields.related import ForeignKey, ManyToManyField
 
 #website users
 class User(AbstractUser):
     pass
 
 
-class Listing(models.Model):
+class Listing(Model):
     seller = ForeignKey(
         User,
         on_delete=CASCADE
@@ -39,10 +39,10 @@ class Listing(models.Model):
 FOREIGN KEY Bid (user_id) REFERENCES PRIMARY KEY User (id)
 FOREIGN KEY Bid (listing_id) REFERENCES PRIMARY KEY Listing (id)
 """
-class Bid(models.Model):
+class Bid(Model):
     listing = ForeignKey(
         Listing,
-        on_delete=models.CASCADE
+        on_delete=CASCADE
     )
     winner = ForeignKey(
         User,
@@ -56,7 +56,7 @@ class Bid(models.Model):
 FOREIGN KEY Comment (user_id) REFERENCES PRIMARY KEY User (id)
 FOREIGN KEY Comment (listing_id) REFERENCES PRIMARY KEY Listing (id)
 """
-class Comment(models.Model):
+class Comment(Model):
     listing = ForeignKey(
         Listing,
         on_delete=CASCADE
@@ -72,7 +72,7 @@ class Comment(models.Model):
 FOREIGN KEY Watchlist (user_id) REFERENCES PRIMARY KEY User (id)
 FOREIGN KEY Watchlist (listing_id) REFERENCES PRIMARY KEY Listing (id)
 """
-class Watchlist(models.Model):
+class Watchlist(Model):
     user = ForeignKey(
         User,
         on_delete=CASCADE
@@ -81,3 +81,17 @@ class Watchlist(models.Model):
         Listing,
         on_delete=CASCADE
     )
+
+
+class ObtainedItem(Model):
+    user = ForeignKey(
+        User,
+        on_delete=CASCADE
+    )
+    item = ManyToManyField(Listing)
+
+    def __str__(self) -> str:
+        return f"""
+        The user is: {self.user},
+        The user has won items: {self.item}
+        """

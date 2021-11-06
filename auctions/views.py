@@ -1,13 +1,13 @@
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.db import IntegrityError
+from django.db.models import F
 from django.forms import ModelForm
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render
 from django.urls import reverse
-from django.db.models import F
 
-from .models import Bid, Comment, Listing, User, Watchlist
+from .models import Bid, Comment, Listing, ObtainedItem, User, Watchlist
 
 
 #the form a user will fill out to create a new listing
@@ -191,11 +191,24 @@ def category(request, choice):
 def close_auction(request, id):
     if request.method == "POST":
         Listing.objects.filter(pk = int(id)).update(active = False)
-        return HttpResponseRedirect(reverse("index"))
+    return HttpResponseRedirect(reverse("index"))
 
 
 # the auction winner can "accept" the item, and the item will be delisted
 def delist(request, id):
     if request.method == "POST":
+        # add the item to the user's list of obtained auction items and delete the item from active Listings (Listing model)
+        transfer = ObtainedItem.objects.get_or_create(
+            user = request.user,
+            defaults={
+                "user": request.user
+            }
+        )[0]
+        transfer.item.add(Listing.objects.get(pk = int(id)))
         Listing.objects.filter(pk = int(id)).delete()
-        return HttpResponseRedirect(reverse("index"))
+    return HttpResponseRedirect(reverse("index"))
+
+
+
+# NOTE:
+# ObtainedItem.objects.get(user = request.user).item.all()
