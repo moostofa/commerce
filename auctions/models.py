@@ -1,7 +1,7 @@
 from django.contrib.auth.models import AbstractUser
 from django.db import models
 from django.db.models.deletion import CASCADE
-from django.db.models.fields import CharField, DateTimeField, DecimalField, IntegerField, TextField, URLField
+from django.db.models.fields import BooleanField, CharField, DateTimeField, DecimalField, IntegerField, TextField, URLField
 from django.db.models.fields.related import ForeignKey
 
 #website users
@@ -21,6 +21,7 @@ class Listing(models.Model):
     description = TextField()
     category = CharField(max_length=20, blank=True, null=True)
     image = URLField(verbose_name="Image URL", blank=True, null=True)
+    open = BooleanField(default=True)
 
     def __str__(self) -> str:
         return f"""
@@ -30,6 +31,7 @@ class Listing(models.Model):
         time created = {self.created},
         description = {self.description},
         category = {self.category},
+        the listing is open: {self.open}
         """
 
 

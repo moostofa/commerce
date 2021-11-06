@@ -14,7 +14,7 @@ from .models import Bid, Comment, Listing, User, Watchlist
 class NewListing(ModelForm):
     class Meta:
         model = Listing
-        exclude = ["seller", "created"]
+        exclude = ["seller", "created", "open"]
 
 
 # index page displays all listings. NOTE: category view also redirects to this page, but with a filtered QuerySet
