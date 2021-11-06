@@ -18,10 +18,10 @@ class NewListing(ModelForm):
         exclude = ["seller", "created", "active"]
 
 
-# index page displays all listings. NOTE: category view also redirects to this page, but with a filtered QuerySet
+# index page displays all ACTIVE listings. NOTE: category view also redirects to this page, but with a filtered QuerySet
 def index(request):
     return render(request, "auctions/index.html", {
-        "listings": Listing.objects.all()
+        "listings": Listing.objects.filter(active = True)
     })
 
 
@@ -95,7 +95,7 @@ def create_listing(request):
             return HttpResponse("error")
         
         #create a database entry using the form data, inserting it into the Listing model (table)
-        #neat little trick: unpacking a dictionary (form is a dict)
+        #neat little trick: unpacking a dictionary (the form is a dict)
         new_item = Listing(**form.cleaned_data) 
         new_item.seller = request.user
         if new_item.category:
@@ -178,45 +178,29 @@ def helper(request):
         return HttpResponseRedirect(reverse("category", args = [request.POST["category-selection"]]))
 
 
-# list all items in the category chosen by then user
+# list all ACTIVE items in the category chosen by then user
 def category(request, choice):
     if request.method == "GET":
         return render(request, "auctions/index.html", {
             "category": choice,
-            "listings": Listing.objects.filter(category = choice)
+            "listings": Listing.objects.filter(active = True).filter(category = choice)
         })
 
 
 # user who created the listing can close the auction
 def close_auction(request, id):
     if request.method == "POST":
+        winner = Bid.objects.get(listing_id = int(id)).winner
+        ObtainedItem(user = winner, listing = Listing.objects.get(pk = int(id))).save()
         Listing.objects.filter(pk = int(id)).update(active = False)
     return HttpResponseRedirect(reverse("index"))
 
 
-# the auction winner can "accept" the item, and the item will be delisted
-def delist(request, id):
-    if request.method == "POST":
-        # add the item to the user's list of obtained auction items and delete the item from active Listings (Listing model)
-        transfer = ObtainedItem.objects.get_or_create(
-            user = request.user,
-            defaults={
-                "user": request.user
-            }
-        )[0]
-        transfer.item.add(Listing.objects.filter(pk = int(id))[0])
-        Listing.objects.filter(pk = int(id)).delete()
-        return HttpResponseRedirect(reverse("index"))
-
-
+# show users profile: what items they have listed and what items they have won
 def profile(request):
     if request.method == "GET":
-        try:
-            items_won = ObtainedItem.objects.filter(user = request.user)[0].item.all()
-        except IndexError:
-            items_won = []
-
+        items_won = ObtainedItem.objects.filter(user = request.user).values_list("listing", flat = True)
         return render(request, "auctions/profile.html", {
             "my_listings": Listing.objects.filter(seller = request.user),
-            "my_winnings": items_won 
+            "my_winnings": Listing.objects.filter(id__in = items_won)
         })

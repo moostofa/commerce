@@ -1,6 +1,6 @@
 from django.contrib.auth.models import AbstractUser
 from django.db.models import Model
-from django.db.models.deletion import CASCADE
+from django.db.models.deletion import CASCADE, PROTECT
 from django.db.models.fields import BooleanField, CharField, DateTimeField, DecimalField, IntegerField, TextField, URLField
 from django.db.models.fields.related import ForeignKey, ManyToManyField
 
@@ -88,10 +88,7 @@ class ObtainedItem(Model):
         User,
         on_delete=CASCADE
     )
-    item = ManyToManyField(Listing)
-
-    def __str__(self) -> str:
-        return f"""
-        The user is: {self.user},
-        The user has won items: {self.item}
-        """
+    listing = ForeignKey(
+        Listing,
+        on_delete=PROTECT
+    )
