@@ -15,7 +15,7 @@ from .models import Bid, Comment, Listing, User, Watchlist
 class NewListing(ModelForm):
     class Meta:
         model = Listing
-        exclude = ["seller", "created", "open"]
+        exclude = ["seller", "created", "active"]
 
 
 # index page displays all listings. NOTE: category view also redirects to this page, but with a filtered QuerySet
@@ -185,3 +185,8 @@ def category(request, choice):
             "category": choice,
             "listings": Listing.objects.filter(category = choice)
         })
+
+
+def close_auction(request, id):
+    Listing.objects.filter(pk = int(id)).update(active = False)
+    return HttpResponseRedirect(reverse("index"))

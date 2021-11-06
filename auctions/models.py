@@ -21,7 +21,7 @@ class Listing(models.Model):
     description = TextField()
     category = CharField(max_length=20, blank=True, null=True)
     image = URLField(verbose_name="Image URL", blank=True, null=True)
-    open = BooleanField(default=True)
+    active = BooleanField(default=True)
 
     def __str__(self) -> str:
         return f"""
@@ -31,7 +31,7 @@ class Listing(models.Model):
         time created = {self.created},
         description = {self.description},
         category = {self.category},
-        the listing is open: {self.open}
+        the listing is open: {self.active}
         """
 
 

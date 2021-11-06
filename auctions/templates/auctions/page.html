@@ -4,7 +4,10 @@
     <div>
         {% if item.seller == user %}
 
-            <button>Close listing</button>
+            <form action="{% url 'close_auction' item.id %}" method="post">
+                {% csrf_token %}
+                <button type="submit">Close auction</button>
+            </form>
 
         {% else %}
 
@@ -39,7 +42,7 @@
             <h2>Make a bid</h2>
 
             {% if bid_info %}
-            
+
                 <h4>Current bid: {{ bid_info.bid }}</h4>
                 <p>Number of bids: {{ bid_info.bid_count }}</p>
 
