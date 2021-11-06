@@ -187,6 +187,15 @@ def category(request, choice):
         })
 
 
+# user who created the listing can close the auction
 def close_auction(request, id):
-    Listing.objects.filter(pk = int(id)).update(active = False)
-    return HttpResponseRedirect(reverse("index"))
+    if request.method == "POST":
+        Listing.objects.filter(pk = int(id)).update(active = False)
+        return HttpResponseRedirect(reverse("index"))
+
+
+# the auction winner can "accept" the item, and the item will be delisted
+def delist(request, id):
+    if request.method == "POST":
+        Listing.objects.filter(pk = int(id)).delete()
+        return HttpResponseRedirect(reverse("index"))

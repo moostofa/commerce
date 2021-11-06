@@ -1,23 +1,41 @@
 {% extends "auctions/layout.html" %}
 
 {% block body %}
+    {% if not item.active %}
+        <h1>Auction has been closed.</h1>
+
+        {% if user == bid_info.winner %}
+            <h4>Congratulaions! You won the auction.</h4>
+            <h4>You have obtained the auction item for ${{ bid_info.bid }}</h4>
+
+            <form action="{% url 'delist' item.id %}" method="post">
+                {% csrf_token %}
+                <button type="submit">Accept</button>
+            </form>
+        {% endif %}
+        
+    {% endif %}
     <div>
-        {% if item.seller == user %}
+        {% if item.seller == user and item.active %}
 
             <form action="{% url 'close_auction' item.id %}" method="post">
                 {% csrf_token %}
                 <button type="submit">Close auction</button>
             </form>
 
-        {% else %}
+        {% elif item.seller != user %}
 
             <form action="{% url 'watchlist_action' item.id %}" method="post">
                 {% csrf_token %}
                 <!-- item_in_watchlist: a boolean value indicating whether the user has already added current item to watchlist -->
                 {% if item_in_watchlist %}
+
                     <button name="watchlist-action" value="remove" type="submit">Remove from watchlist</button>
-                {% else %}
+
+                {% elif item.active and not item_in_watchlist %}
+
                     <button name="watchlist-action" value="add" type="submit">Add to watchlist</button>
+
                 {% endif %}
             </form>
 
@@ -35,15 +53,14 @@
         </ul>
     </div>  
 
-
-    {% if item.seller != user %}
+    {% if item.seller != user and item.active %}
 
         <div>
             <h2>Make a bid</h2>
 
             {% if bid_info %}
 
-                <h4>Current bid: {{ bid_info.bid }}</h4>
+                <h4>Current bid: ${{ bid_info.bid }}</h4>
                 <p>Number of bids: {{ bid_info.bid_count }}</p>
 
             {% else %}
