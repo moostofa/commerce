@@ -24,5 +24,8 @@
             <img src="{{ item.image }}" alt="{{ item.title }}" width="10%" height="10%">
         </div>
         <hr>
+    
+        {% empty %}
+        <h4>No winnings at the moment.</h4>
     {% endfor %}
 {% endblock %}

@@ -18,10 +18,10 @@
             
             <h6>Seller: {{ item.seller}}</h6>
             <h6>Listing price: ${{ item.price }}</h6>
-            <p>Created {{ item.created }}</p>
             <p>Description: {{ item.description }}</p>
             <p>Category: {{ item.category }}</p>
             <img src="{{ item.image }}" alt="{{ item.title }}" width="10%" height="10%">
+            <p>Created {{ item.created }}</p>
         </div>
         <hr>
     {% endfor %}

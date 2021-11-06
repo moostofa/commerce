@@ -204,14 +204,19 @@ def delist(request, id):
                 "user": request.user
             }
         )[0]
-        transfer.item.add(Listing.objects.get(pk = int(id)))
+        transfer.item.add(Listing.objects.filter(pk = int(id))[0])
         Listing.objects.filter(pk = int(id)).delete()
-    return HttpResponseRedirect(reverse("index"))
+        return HttpResponseRedirect(reverse("index"))
 
 
 def profile(request):
     if request.method == "GET":
+        try:
+            items_won = ObtainedItem.objects.filter(user = request.user)[0].item.all()
+        except IndexError:
+            items_won = []
+
         return render(request, "auctions/profile.html", {
             "my_listings": Listing.objects.filter(seller = request.user),
-            "my_winnings": ObtainedItem.objects.filter(user = request.user)[0].item.all()
+            "my_winnings": items_won 
         })

@@ -47,11 +47,13 @@
         <h4>Listing price: ${{ item.price }}</h4>
         <ul>
             <li>Seller: {{ item.seller}}</li>
-            <li>DateTime created {{ item.created }}</li>
             <li>Description: {{ item.description }}</li>
             <li>Category: {{ item.category }}</li>
         </ul>
+        <img src="{{ item.image }}" alt="{{ item.title }}" width="10%" height="10%">
+        <p>Created {{ item.created }}</p>
     </div>  
+    <hr>
 
     {% if item.seller != user and item.active %}
 
@@ -65,17 +67,27 @@
 
             {% else %}
 
-                <h4>Be the first bidder</h4>
+                <h6>Be the first bidder</h6>
 
             {% endif %}
 
             <form action="{% url 'make_bid' item.id %}" method="post">
                 {% csrf_token %}
-                <input type="number" name="bid-amount" placeholder="Amount" min="{{ item.price|add:'1' }}">
+
+                {% if bid_info %}
+                    <input type="number" name="bid-amount" placeholder="Amount" min="{{ bid_info.bid|add:'1' }}">
+                {% else %}
+                    <input type="number" name="bid-amount" placeholder="Amount" min="{{ item.price|add:'1' }}">
+                {% endif %}
+
                 <input type="submit" value="Place bid">
             </form>
         </div>
 
+    {% elif not item.active %}
+
+        <h4>Winner: {{ bid_info.winner }}</h4>
+        <h4>Winning bid: {{ bid_info.bid }}</h4>
+
     {% endif %}
-    <img src="{{ item.image }}" alt="{{ item.title }}" width="10%" height="10%">
 {% endblock %}
