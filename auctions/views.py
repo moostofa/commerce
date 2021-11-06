@@ -135,6 +135,16 @@ def watchlist_action(request, id):
     return HttpResponseRedirect(reverse("index"))
 
 
+# display the user's watchlist
+@login_required
+def watchlist(request):
+    if request.method == "GET":
+        users_watchlist = list(Watchlist.objects.filter(user_id = request.user.id).values_list("listing_id", flat = True))
+        return render(request, "auctions/watchlist.html", {
+            "items_in_watchlist": Listing.objects.filter(id__in = users_watchlist)
+        })
+
+
 #allow user to make a bid on a certain item
 @login_required
 def make_bid(request, id):
@@ -159,16 +169,6 @@ def make_bid(request, id):
 
         #redirect user to index page
         return HttpResponseRedirect(reverse("index"))
-
-
-# display the user's watchlist
-@login_required
-def watchlist(request):
-    if request.method == "GET":
-        users_watchlist = list(Watchlist.objects.filter(user_id = request.user.id).values_list("listing_id", flat = True))
-        return render(request, "auctions/watchlist.html", {
-            "items_in_watchlist": Listing.objects.filter(id__in = users_watchlist)
-        })
 
 
 # takes POST data from category select menu and passes it as a parameter to the category view
