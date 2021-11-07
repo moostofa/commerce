@@ -1,12 +1,16 @@
 {% extends "auctions/layout.html" %}
 
 {% block body %}
-    <h2>Active Listings</h2>
 
-    <!-- If this page is to display the category view, the "category" context will be present. Otherwise, this field is empty -->
-    {% if category %}
-        <h4>Category: {{ category }}</h4>
-    {% endif %}
+    <div>
+        {% if category %}
+            <h1>Category: {{ category }}</h1>
+        {% elif watchlist %}
+            <h1>My watchlist</h1>
+        {% else %}
+            <h1>Active Listings</h1>
+        {% endif %}
+    </div>
 
     {% for item in listings %}
         <div>
@@ -18,21 +22,28 @@
                         {% else %}
                             <h4>{{ item.title }}</h4>
                         {% endif %}
+                        {% if watchlist %}
+                        <form action="{% url 'watchlist_action' item.id %}" method="post">
+                            {% csrf_token %}
+                            <button class="btn btn-danger" name="watchlist-action" value="remove" type="submit">Remove from watchlist</button>
+                        </form>
+                        {% endif %}
                     </div>
                 </div>
+
                 <div class="list-group-item">
                     <div class="list-group-item-text">
                         <h5>Seller: {{ item.seller }}</h5>
-                    </div>
-                    <div class="list-group-item-text">
                         <h6>Listing price: ${{ item.price }}</h6>
                     </div>
                 </div>
+              
             </div>
             <div class="list-group list-group-horizontal w-75">
                 <div class="list-group-item">
                     <img src="{{ item.image }}" alt="{{ item.title }}" width="256" height="256">
                 </div>
+
                 <div class="list-group-item">
                     <p>{{ item.description }}</p>
                     <p>Category: {{ item.category }}</p>

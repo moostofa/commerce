@@ -125,7 +125,8 @@
     <hr>
 
     {% for comment in comments%}
-        <h4>{{ comment.user__username}}</h4>
+        <h4>{{ comment.comment_title }}</h4>
+        <p>Commenter: {{ comment.user__username }}</p>
         <p>{{ comment.comment }}</p>
         <small>{{ comment.time }}</small>
         <hr>

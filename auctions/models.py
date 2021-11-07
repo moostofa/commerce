@@ -1,6 +1,6 @@
 from django.contrib.auth.models import AbstractUser
 from django.db.models import Model
-from django.db.models.deletion import CASCADE, PROTECT
+from django.db.models.deletion import CASCADE
 from django.db.models.fields import BooleanField, CharField, DateTimeField, DecimalField, IntegerField, TextField, URLField
 from django.db.models.fields.related import ForeignKey
 
@@ -89,5 +89,5 @@ class ObtainedItem(Model):
     )
     listing = ForeignKey(
         Listing,
-        on_delete=PROTECT
+        on_delete=CASCADE
     )

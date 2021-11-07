@@ -3,7 +3,7 @@ from django.contrib.auth.decorators import login_required
 from django.db import IntegrityError
 from django.db.models import F
 from django.forms import ModelForm
-from django.forms.widgets import TextInput, Textarea
+from django.forms.widgets import Textarea, TextInput
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render
 from django.urls import reverse
@@ -149,7 +149,7 @@ def view_listing(request, id):
             
             # allow user to make a comment & view all other comments
             "comment_form": CommentForm(),
-            "comments": Comment.objects.filter(listing = item).values("user__username", "comment", "time")
+            "comments": Comment.objects.filter(listing = item).values("user__username", "comment_title", "comment", "time")
         })
 
 
@@ -172,9 +172,12 @@ def watchlist_action(request, id):
 @login_required
 def watchlist(request):
     if request.method == "GET":
+        # take user to a page which consists of items in their watchlist
+        # NOTE: this view actually just renders index but with different contexts
         users_watchlist = list(Watchlist.objects.filter(user_id = request.user.id).values_list("listing_id", flat = True))
-        return render(request, "auctions/watchlist.html", {
-            "items_in_watchlist": Listing.objects.filter(id__in = users_watchlist)
+        return render(request, "auctions/index.html", {
+            "watchlist": True,
+            "listings": Listing.objects.filter(id__in = users_watchlist)
         })
 
 
@@ -184,7 +187,7 @@ def make_bid(request, id):
     if request.method == "POST":
         listing_item = Listing.objects.get(pk = int(id)) 
 
-        #insert bid details into Bid model - "winner" is the current highest bidder
+        #insert bid details into Bid model -> "winner" is the current highest bidder
         Bid.objects.update_or_create(
             listing = listing_item,
             defaults={
