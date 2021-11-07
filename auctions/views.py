@@ -1,11 +1,12 @@
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.db import IntegrityError
-from django.db.models import F
+from django.db.models import F, fields
 from django.forms import ModelForm
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render
 from django.urls import reverse
+from django.urls.conf import include
 
 from .models import Bid, Comment, Listing, ObtainedItem, User, Watchlist
 
@@ -16,6 +17,12 @@ class NewListing(ModelForm):
     class Meta:
         model = Listing
         exclude = ["seller", "created", "active"]
+
+
+class CommentForm(ModelForm):
+    class Meta:
+        model = Comment
+        fields = ["comment"]
 
 
 # index page displays all ACTIVE listings. NOTE: category view also redirects to this page, but with a filtered QuerySet
@@ -122,6 +129,8 @@ def view_listing(request, id):
             #item_in_watchling returns a bool indicating whether or not the chosen item is in the user's watchlist
             #in template, this is used to determine whether the watchlist button should display "add to" or "remove from"
             "item_in_watchlist": listing_id in Watchlist.objects.values_list("listing_id", flat=True),
+            "comment_form": CommentForm(),
+            "comments": Comment.objects.filter(listing = item).values("user__username", "comment", "time")
         })
 
 
@@ -207,3 +216,19 @@ def profile(request):
             "my_listings": Listing.objects.filter(active = True).filter(seller = request.user),
             "my_winnings": Listing.objects.filter(id__in = items_won)
         })
+
+
+@login_required
+def comment(request, id):
+    if request.method == "POST":
+        form = CommentForm(request.POST)
+        if not form.is_valid():
+            return HttpResponse("comment form is invalid")
+        
+        Comment(
+            listing = Listing.objects.get(pk = int(id)), 
+            user = request.user, 
+            comment = form.cleaned_data["comment"]
+        ).save()
+
+        return HttpResponseRedirect(reverse("index"))

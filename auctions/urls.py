@@ -15,5 +15,6 @@ urlpatterns = [
     path("helper", views.helper, name="helper"),
     path("category/<str:choice>", views.category, name="category"),
     path("close_auction/<int:id>", views.close_auction, name="close_auction"),
-    path("profile", views.profile, name="profile")
+    path("profile", views.profile, name="profile"),
+    path("comment/<int:id>", views.comment, name="comment")
 ]

@@ -79,6 +79,7 @@
                 <input type="submit" value="Place bid">
             </form>
         </div>
+        <hr>
 
     {% elif not item.active %}
 
@@ -86,4 +87,23 @@
         <h4>Winning bid: {{ bid_info.bid }}</h4>
 
     {% endif %}
+    <h2>Comments</h2>
+
+    {% if item.active and item.seller != user %}
+        <form action="{% url 'comment' item.id %}" method="post">
+            {% csrf_token %}
+            {{ comment_form }}
+            <input type="submit" value="Add comment">
+        </form>
+    {% endif %}
+    <hr>
+
+    {% for comment in comments%}
+        <h4>User: {{ comment.user__username}}</h4>
+        <p>Comment: {{ comment.comment }}</p>
+        <p>Time commented: {{ comment.time }}</p>
+        <hr>
+    {% empty %}
+        <p>No comments</p>
+    {% endfor %}
 {% endblock %}

@@ -56,6 +56,7 @@ class Comment(Model):
         on_delete=CASCADE
     )
     comment = TextField()
+    time = DateTimeField(auto_now_add=True)
 
 
 """
