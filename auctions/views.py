@@ -3,6 +3,7 @@ from django.contrib.auth.decorators import login_required
 from django.db import IntegrityError
 from django.db.models import F
 from django.forms import ModelForm
+from django.forms.widgets import TextInput, Textarea
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render
 from django.urls import reverse
@@ -22,7 +23,21 @@ class NewListing(ModelForm):
 class CommentForm(ModelForm):
     class Meta:
         model = Comment
-        fields = ["comment"]
+        fields = ["comment_title", "comment"]
+        labels = {
+            "comment_title": "",
+            "comment": ""
+        }
+        widgets = {
+            "comment_title": TextInput(attrs={
+                "placeholder":"Comment title", 
+                "class":"form-control w-25"
+            }),
+            "comment": Textarea(attrs={
+                "placeholder":"Write your comment here", 
+                "class":"form-control w-25"
+            })
+        }
 
 
 # index page displays all ACTIVE listings. NOTE: category view also redirects to this page, but with a filtered QuerySet
@@ -150,7 +165,7 @@ def watchlist_action(request, id):
             Watchlist(user_id = request.user.id, listing_id = int(id)).save()
         elif action == "remove":
             Watchlist.objects.filter(user_id = request.user.id).filter(listing_id = int(id)).delete()
-    return HttpResponseRedirect(reverse("index"))
+    return HttpResponseRedirect(reverse("watchlist"))
 
 
 # display the user's watchlist

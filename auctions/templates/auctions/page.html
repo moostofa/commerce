@@ -43,17 +43,34 @@
     </div>
 
     <div>
-        <h1>{{ item.title }}</h1>
-        <h4>Listing price: ${{ item.price }}</h4>
-        <ul>
-            <li>Seller: {{ item.seller}}</li>
-            <li>Description: {{ item.description }}</li>
-            <li>Category: {{ item.category }}</li>
-        </ul>
-        <img src="{{ item.image }}" alt="{{ item.title }}" width="10%" height="10%">
-        <p></p>
-        <small>Created {{ item.created }}</small>
-    </div>  
+        <div class=" list-group list-group-horizontal">
+            <div class="list-group-item">
+                <div class="list-group-item-heading">
+                    <h2>{{ item.title }}</h2>
+                </div>
+            </div>
+        </div>
+
+        <div class=" list-group list-group-horizontal">
+            <div class="list-group-item">
+                <div class="list-group-item-text">
+                    <h5>Seller: {{ item.seller }}</h5>
+                    <h5>Listing price: ${{ item.price }}</h5>
+                </div>
+            </div>
+        </div>
+
+        <div class="list-group list-group-horizontal w-75">
+            <div class="list-group-item">
+                <img src="{{ item.image }}" alt="{{ item.title }}" width="256" height="256">
+            </div>
+            <div class="list-group-item">
+                <p>{{ item.description }}</p>
+                <p>Category: {{ item.category }}</p>
+            </div>
+        </div>
+        <small>Created on {{ item.created }}</small>
+    </div>
     <hr>
 
     {% if item.seller != user and item.active %}
@@ -90,16 +107,17 @@
     {% elif not item.active %}
 
         <h4>Winner: {{ bid_info.winner }}</h4>
-        <h4>Winning bid: {{ bid_info.bid }}</h4>
+        <h4>Winning bid: ${{ bid_info.bid }}</h4>
 
     {% endif %}
     <h2>Comments</h2>
 
     {% if item.active and item.seller != user %}
+        <h5>Make a comment</h5>
         <div class="form-group">
             <form action="{% url 'comment' item.id %}" method="post">
                 {% csrf_token %}
-                {{ comment_form }}
+                {{ comment_form.as_p }}
                 <input class="btn btn-primary" type="submit" value="Add comment">
             </form>
         </div>
