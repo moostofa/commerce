@@ -10,6 +10,9 @@ class User(AbstractUser):
     pass
 
 
+"""
+FOREIGN KEY Listing (seller_id) REFERENCES PRIMARY KEY User (id)
+"""
 class Listing(Model):
     seller = ForeignKey(
         User,
