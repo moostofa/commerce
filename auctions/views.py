@@ -259,6 +259,7 @@ def comment(request, id):
         Comment(
             listing = Listing.objects.get(pk = int(id)), 
             user = request.user, 
+            comment_title = form.cleaned_data["comment_title"],
             comment = form.cleaned_data["comment"]
         ).save()
 

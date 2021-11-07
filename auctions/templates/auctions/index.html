@@ -54,6 +54,10 @@
         <hr>
 
     {% empty %}
-        <h4>No active listings</h4>
+        {% if watchlist %}
+            <h4>No items in watchlist</h4>
+        {% else %}
+            <h4>No active listings</h4>
+        {% endif %}
     {% endfor %}
 {% endblock %}
