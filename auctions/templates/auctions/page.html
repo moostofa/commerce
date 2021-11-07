@@ -15,7 +15,12 @@
 
             <form action="{% url 'close_auction' item.id %}" method="post">
                 {% csrf_token %}
-                <button class="btn btn-primary" type="submit">Close auction</button>
+
+                {% if bid_info %}
+                    <button class="btn btn-primary" type="submit">Close auction @ ${{ bid_info.bid }}</button>
+                {% else %}
+                    <button class="btn btn-primary" type="submit">Close auction @ ${{ item.price }}</button>
+                {% endif %}
             </form>
 
         {% elif item.seller != user %}
