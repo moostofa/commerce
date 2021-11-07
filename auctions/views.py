@@ -1,17 +1,16 @@
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.db import IntegrityError
-from django.db.models import F, fields
+from django.db.models import F
 from django.forms import ModelForm
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render
 from django.urls import reverse
-from django.urls.conf import include
 
 from .models import Bid, Comment, Listing, ObtainedItem, User, Watchlist
 
 
-# the form a user will fill out to create a new listing
+# the form a user will fill in to create a new listing
 # all model fields will be present except for the time created (handled in models.py) and who created it (user)
 class NewListing(ModelForm):
     class Meta:
@@ -19,6 +18,7 @@ class NewListing(ModelForm):
         exclude = ["seller", "created", "active"]
 
 
+# the form a user will fill in to add a comment
 class CommentForm(ModelForm):
     class Meta:
         model = Comment
@@ -221,14 +221,17 @@ def profile(request):
 @login_required
 def comment(request, id):
     if request.method == "POST":
+        # get the comment and validate it
         form = CommentForm(request.POST)
         if not form.is_valid():
             return HttpResponse("comment form is invalid")
         
+        # add into the Comment model the user who commented, on which listing and the comment
         Comment(
             listing = Listing.objects.get(pk = int(id)), 
             user = request.user, 
             comment = form.cleaned_data["comment"]
         ).save()
 
-        return HttpResponseRedirect(reverse("index"))
+        # "refresh" the webpage
+        return HttpResponseRedirect(reverse("view_listing", args=[id]))

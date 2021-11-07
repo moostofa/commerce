@@ -99,9 +99,9 @@
     <hr>
 
     {% for comment in comments%}
-        <h4>User: {{ comment.user__username}}</h4>
-        <p>Comment: {{ comment.comment }}</p>
-        <p>Time commented: {{ comment.time }}</p>
+        <h4>{{ comment.user__username}}</h4>
+        <p>{{ comment.comment }}</p>
+        <small>{{ comment.time }}</small>
         <hr>
     {% empty %}
         <p>No comments</p>
