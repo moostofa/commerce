@@ -96,15 +96,17 @@ def create_listing(request):
             "form": NewListing()
         })
     else:
-        #get form data
+        # get POST form data
         form = NewListing(request.POST)
         if not form.is_valid():
             return HttpResponse("error")
         
         # create a database entry using the form data, inserting it into the Listing model (table)
-        # neat little trick: unpacking a dictionary (the form is a dict)
+        # neat little trick: unpacking a dictionary (the form is returned as a dict)
         new_item = Listing(**form.cleaned_data) 
         new_item.seller = request.user
+        
+        # check if a cateogory was provided & save the entry
         if new_item.category:
             new_item.category = new_item.category.lower().capitalize()
         new_item.save()
@@ -126,9 +128,11 @@ def view_listing(request, id):
             "item": item,
             "bid_info": Bid.objects.get(listing = item) if Bid.objects.filter(listing = item) else None,
 
-            #item_in_watchling returns a bool indicating whether or not the chosen item is in the user's watchlist
-            #in template, this is used to determine whether the watchlist button should display "add to" or "remove from"
+            # item_in_watchling returns a bool indicating whether or not the chosen item is in the user's watchlist
+            # in template, this is used to determine whether the watchlist button should display "add to" or "remove from"
             "item_in_watchlist": listing_id in Watchlist.objects.values_list("listing_id", flat=True),
+            
+            # allow user to make a comment & view all other comments
             "comment_form": CommentForm(),
             "comments": Comment.objects.filter(listing = item).values("user__username", "comment", "time")
         })
@@ -138,10 +142,10 @@ def view_listing(request, id):
 @login_required
 def watchlist_action(request, id):
     if request.method == "POST":
-        #get the action the user wanted to perform (add or remove)
+        # get the action the user wanted to perform (add or remove)
         action = request.POST["watchlist-action"]
 
-        #explicitly comparing action to "add" and "remove" incase user inspects element
+        # explicitly comparing action to "add" and "remove" incase user inspects element
         if action == "add": 
             Watchlist(user_id = request.user.id, listing_id = int(id)).save()
         elif action == "remove":
@@ -165,7 +169,7 @@ def make_bid(request, id):
     if request.method == "POST":
         listing_item = Listing.objects.get(pk = int(id)) 
 
-        #insert bid details into Bid model - "winner" is the current highes bidder
+        #insert bid details into Bid model - "winner" is the current highest bidder
         Bid.objects.update_or_create(
             listing = listing_item,
             defaults={
@@ -173,7 +177,7 @@ def make_bid(request, id):
                 "bid": request.POST["bid-amount"]
             }
         )
-        #update bid_count
+        # increment bid_count
         Bid.objects.filter(listing = listing_item).update(bid_count = F("bid_count") + 1)
 
         #redirect user to index page
@@ -196,7 +200,7 @@ def category(request, choice):
         })
 
 
-# user who created the listing can close the auction
+# user who created the listing can close the auction, making the highest bidder the winner
 @login_required
 def close_auction(request, id):
     if request.method == "POST":
@@ -207,7 +211,7 @@ def close_auction(request, id):
     return HttpResponseRedirect(reverse("index"))
 
 
-# show users profile: what active items they have listed and what items they have won
+# show users profile: what active items they have listed, and what items they have won
 @login_required
 def profile(request):
     if request.method == "GET":
@@ -218,6 +222,7 @@ def profile(request):
         })
 
 
+# allow user to make a comment on a listing
 @login_required
 def comment(request, id):
     if request.method == "POST":
