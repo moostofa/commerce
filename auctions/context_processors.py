@@ -1,3 +1,5 @@
+# context_processors.py allows the list of categories to be globally accessible by the category select menu in layout.html
+
 from .models import Listing
 
 def category_context(request):
