@@ -204,16 +204,14 @@ def category(request, choice):
 @login_required
 def close_auction(request, id):
     if request.method == "POST":
-        # try to get the highest bidder of the current auction
+        # try to get the winner of the auction
+        # If an exception is raised, the auction was ended prematurely (without any bids), thus, there is no winner
         try:
             winner = Bid.objects.get(listing_id = int(id)).winner
-        # catch exception: a winner does not exist -> auction was closed without any bids
         except Bid.DoesNotExist:
             pass
-        # if try block succeeds, a winner exists. Add the item won to the winner's Obtained items model
         else:
             ObtainedItem(user = winner, listing = Listing.objects.get(pk = int(id))).save()
-        # in both cases, deactivate listing and redirect user to index
         finally:
             Listing.objects.filter(pk = int(id)).update(active = False)
     return HttpResponseRedirect(reverse("index"))
