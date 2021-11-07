@@ -10,12 +10,12 @@
 
         {% endif %}
     {% endif %}
-    <div>
+    <div class="form-group">
         {% if item.seller == user and item.active %}
 
             <form action="{% url 'close_auction' item.id %}" method="post">
                 {% csrf_token %}
-                <button type="submit">Close auction</button>
+                <button class="btn btn-primary" type="submit">Close auction</button>
             </form>
 
         {% elif item.seller != user %}
@@ -25,11 +25,11 @@
                 <!-- item_in_watchlist: a boolean value indicating whether the user has already added current item to watchlist -->
                 {% if item_in_watchlist %}
 
-                    <button name="watchlist-action" value="remove" type="submit">Remove from watchlist</button>
+                    <button class="btn btn-danger" name="watchlist-action" value="remove" type="submit">Remove from watchlist</button>
 
                 {% elif item.active and not item_in_watchlist %}
 
-                    <button name="watchlist-action" value="add" type="submit">Add to watchlist</button>
+                    <button class="btn btn-success" name="watchlist-action" value="add" type="submit">Add to watchlist</button>
 
                 {% endif %}
             </form>
@@ -46,13 +46,14 @@
             <li>Category: {{ item.category }}</li>
         </ul>
         <img src="{{ item.image }}" alt="{{ item.title }}" width="10%" height="10%">
-        <p>Created {{ item.created }}</p>
+        <p></p>
+        <small>Created {{ item.created }}</small>
     </div>  
     <hr>
 
     {% if item.seller != user and item.active %}
 
-        <div>
+        <div class="form-group">
             <h2>Make a bid</h2>
             {% if bid_info %}
 
@@ -76,7 +77,7 @@
                     <input type="number" name="bid-amount" placeholder="Amount" min="{{ item.price|add:'1' }}">
 
                 {% endif %}
-                <input type="submit" value="Place bid">
+                <input class="btn btn-primary" type="submit" value="Place bid">
             </form>
         </div>
         <hr>
@@ -90,11 +91,13 @@
     <h2>Comments</h2>
 
     {% if item.active and item.seller != user %}
-        <form action="{% url 'comment' item.id %}" method="post">
-            {% csrf_token %}
-            {{ comment_form }}
-            <input type="submit" value="Add comment">
-        </form>
+        <div class="form-group">
+            <form action="{% url 'comment' item.id %}" method="post">
+                {% csrf_token %}
+                {{ comment_form }}
+                <input class="btn btn-primary" type="submit" value="Add comment">
+            </form>
+        </div>
     {% endif %}
     <hr>
 

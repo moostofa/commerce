@@ -11,18 +11,21 @@
     {% for item in listings %}
 
         <div>
-            {% if user.is_authenticated %}
-                <h4><a href="{% url 'view_listing' item.id %}">{{ item.title }}</a></h4>
-            {% else %}
-                <h4>{{ item.title }}</h4>
-            {% endif %}
             
-            <h6>Seller: {{ item.seller}}</h6>
-            <h6>Listing price: ${{ item.price }}</h6>
-            <p>Description: {{ item.description }}</p>
-            <p>Category: {{ item.category }}</p>
-            <img src="{{ item.image }}" alt="{{ item.title }}" width="10%" height="10%">
-            <p>Created {{ item.created }}</p>
+            <ul class="list-group w-25">
+                {% if user.is_authenticated %}
+                    <li class="list-group-item"><h4><a href="{% url 'view_listing' item.id %}">{{ item.title }}</a></h4></li>
+                {% else %}
+                    <li class="list-group-item"><h4>{{ item.title }}</h4></li>
+                {% endif %}
+
+                <li class="list-group-item"><h6>Seller: {{ item.seller}}</h6></li>
+                <li class="list-group-item"><h6>Listing price: ${{ item.price }}</h6></li>
+                <li class="list-group-item">Description: {{ item.description }}</li>
+                <li class="list-group-item">Category: {{ item.category }}</li>
+                <li class="list-group-item"><img src="{{ item.image }}" alt="{{ item.title }}" width="10%" height="10%"></li>
+                <li class="list-group-item"><small>Created {{ item.created }}</small></li>
+            </ul>
         </div>
         <hr>
 
