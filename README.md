@@ -40,4 +40,22 @@ Visiting an auction as the seller:
 ![Seller's view](static/images/seller.png)
 
 Visiting an auction as a buyer:
-Image here
+![Buyer's view (image 1/2)](static/images/buyer1.png)
+![Buyer's view (image 2/2)](static/images/buyer2.png)
+
+# Watchlist
+A user can items add to and remove items from their watchlist.
+
+![Watchlist](static/images/watchlist.png)
+
+# Search by category
+Active listings can be filtered by category using the "Search by category" select menu.
+
+A filtered search for items in the "gaming" category would look like this:
+
+![Gaming category](static/images/gaming.png)
+
+# Profile
+Users can check their own profile, which includes auctions they have listed and auctions that they have won.
+
+![Profile](static/images/profile.png)
