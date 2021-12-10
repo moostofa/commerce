@@ -1,5 +1,5 @@
 # Commerce
-A full stack Django web application designed as an e-commerce auction website with functionality such as:
+A Django web application designed as an e-commerce auction website with functionality such as:
 - User authentication
 - Posting auction items
 - Placing bids on items
@@ -10,7 +10,7 @@ This is project 2 of the online course [CS50 Web](https://cs50.harvard.edu/web/2
 
 # Project goals
 - Learning Django
-- Create full stack web application
+- Implementing MVC design
 - Understanding & implementing Django models and migrations
 - Creating relationships amongst tables (Django models)
 
